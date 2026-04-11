@@ -1,5 +1,5 @@
 // Only works on a tiny subset of latex
-test_expression = "2^{3+4_{2+2^{noo}=4}^{5}} whoaa";
+test_expression = "2^{3+4_{2+2^{noo}=4}^{5}} whoaa yay";
 
 class SpecialExpressions {
 	/**
@@ -37,7 +37,17 @@ function tex_to_div(test_string) {
 	let expression_array = [];
 
 	while (current_character_index < test_string.length) {
+		// Need to handle braces here, not after, as then considered expression
+		if (test_string[current_character_index] == "\\") {
+		}
 		if (test_string[current_character_index] == "{") {
+			// If { is the last character, then let it be!
+			if (current_character_index + 1 == test_string.length) {
+				expression_array.push("{");
+				current_character_index += 1;
+				continue;
+			}
+
 			// Read till corresponding }
 			// If no corresponding }, then error?
 			// Or leave it unparsed, as a string?
@@ -62,10 +72,11 @@ function tex_to_div(test_string) {
 				}
 			}
 			// Probably unterminated }, just write the string as it then
-			if (current_character_index > test_string.length) {
-				expression_array.push(inner_expression);
-				continue;
-			}
+			// But maybe better to let it be!
+			// if (current_character_index > test_string.length) {
+			// 	expression_array.push(inner_expression);
+			// 	continue;
+			// }
 			console.log(inner_expression);
 			let inner_div = tex_to_div(inner_expression);
 			expression_array.push(inner_div);
@@ -83,7 +94,7 @@ function tex_to_div(test_string) {
 	while (element_index < expr_length) {
 		let element = expression_array[element_index];
 		// The ^ and _ for sigma are handled later, in the \sigma or \sum declaration
-		
+
 		if (element == "^" || element == "_") {
 			if (element_index + 1 < expr_length) {
 				element_index += 1;
@@ -91,10 +102,10 @@ function tex_to_div(test_string) {
 				let isSup = element == "^";
 
 				// Check if the paired symbol immediately follows
-                // If ^ and _ are both there, then i want the contents to be together
+				// If ^ and _ are both there, then i want the contents to be together
 				let otherSymbol = isSup ? "_" : "^";
 				let hasPair = element_index + 2 < expr_length && expression_array[element_index + 1] == otherSymbol;
-                
+
 				if (hasPair) {
 					element_index += 2;
 					let second_component = expression_array[element_index];
@@ -149,10 +160,41 @@ function tex_to_div(test_string) {
 	for (let element of final_expression_array) {
 		div_element.append(element);
 	}
-	console.log(final_expression_array);
+	// console.log(final_expression_array);
+	// This is so i can manage the copying
+	div_element.dataset.source = test_string;
 	return div_element;
 }
-let test_div = tex_to_div(test_expression)
-test_div.style.scale = 4;
-test_div.style.transformOrigin = "top left"
-document.body.appendChild(test_div);
+
+customElements.define("m-eq", class extends HTMLElement {
+	connectedCallback() {
+		const source = this.textContent;
+		this.textContent = "";
+		this.appendChild(tex_to_div(source));
+
+		this.addEventListener("copy", (e) => {
+			e.preventDefault();
+			const selection = window.getSelection();
+			if (!selection.rangeCount) return;
+
+			const range = selection.getRangeAt(0);
+
+			// Walk up from the selection's start container to find
+			// the deepest div with a source that fully contains the range
+			let node = range.commonAncestorContainer;
+			while (node && node !== this) {
+				if (node.dataset?.source !== undefined) {
+					// Check it fully contains the selection
+					if (node.contains(range.startContainer) && node.contains(range.endContainer)) {
+						e.clipboardData.setData("text/plain", node.dataset.source);
+						return;
+					}
+				}
+				node = node.parentNode;
+			}
+
+			// Fallback to full source
+			e.clipboardData.setData("text/plain", source);
+		});
+	}
+});
