@@ -1,5 +1,4 @@
 // Only works on a tiny subset of latex
-test_expression = "2^{3+4_{2+2^{noo}=4}^{5}} whoaa yay";
 
 class SpecialExpressions {
 	/**
@@ -13,6 +12,79 @@ class SpecialExpressions {
 		this.data = data;
 	}
 }
+
+
+/**
+ * Handles all subscript superscript and display like blocks direction
+ *
+ * @param {HTMLDivElement | String} main_element
+ * @param {HTMLDivElement | String} sup
+ * @param {HTMLDivElement | String} sub
+ * @param {HTMLDivElement | String} lsup
+ * @param {HTMLDivElement | String} lsub
+ * @param {HTMLDivElement | String} up
+ * @param {HTMLDivElement | String} down
+ * @param {string} [overlap="0em"] Used to control for too far away, like for summations, use 0.3em
+ * @return {HTMLDivElement} 
+ */
+function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "0em") {
+	const wrapper = document.createElement("span");
+	wrapper.style.display = "inline-flex";
+	wrapper.style.alignItems = "stretch";  // instead of "center"
+
+
+
+	function makeScript(content, pushDown, overlapSide) {
+		const d = document.createElement("span");
+		d.style.zoom = 0.6;
+		if (pushDown) d.style.marginTop = "auto";
+		else d.style.marginBottom = "auto";
+		if (overlap !== "0em") d.style[overlapSide] = `-${overlap}`;
+		d.append(content);
+		return d;
+	}
+
+	if (lsup || lsub) {
+		const leftCol = document.createElement("span");
+		leftCol.style.display = "inline-flex";
+		leftCol.style.flexDirection = "column";
+		if (lsup) leftCol.appendChild(makeScript(lsup, false, "marginBottom"));
+		if (lsub) leftCol.appendChild(makeScript(lsub, true, "marginTop"));
+		wrapper.appendChild(leftCol);
+	}
+
+	const mainSpan = document.createElement("span");
+	mainSpan.style.lineHeight = "1";
+	mainSpan.append(main_element);
+	// and on mainSpan:
+	mainSpan.style.display = "flex";
+	mainSpan.style.alignItems = "center";
+
+
+	wrapper.appendChild(mainSpan);
+
+	if (sup || sub || up || down) {
+		const rightCol = document.createElement("span");
+		rightCol.style.display = "inline-flex";
+		rightCol.style.flexDirection = "column";
+		rightCol.style.alignItems = "flex-start";
+		if (sup || up) rightCol.appendChild(makeScript(sup ?? up, false, "marginBottom"));
+		if (sub || down) rightCol.appendChild(makeScript(sub ?? down, true, "marginTop"));
+		wrapper.appendChild(rightCol);
+	}
+
+	return wrapper;
+}
+
+function toElement(item) {
+	if (typeof item === "string") {
+		const span = document.createElement("span");
+		span.textContent = item;
+		return span;
+	}
+	return item;
+}
+
 
 /**
  * The converter!
@@ -39,6 +111,11 @@ function tex_to_div(test_string) {
 	while (current_character_index < test_string.length) {
 		// Need to handle braces here, not after, as then considered expression
 		if (test_string[current_character_index] == "\\") {
+			if (current_character_index + 1 < test_string.length && test_string[current_character_index + 1] == "{") {
+				expression_array.push("{");
+				current_character_index += 2;
+				continue;
+			}
 		}
 		if (test_string[current_character_index] == "{") {
 			// If { is the last character, then let it be!
@@ -77,7 +154,7 @@ function tex_to_div(test_string) {
 			// 	expression_array.push(inner_expression);
 			// 	continue;
 			// }
-			console.log(inner_expression);
+			// console.log(inner_expression);
 			let inner_div = tex_to_div(inner_expression);
 			expression_array.push(inner_div);
 		} else {
@@ -113,38 +190,20 @@ function tex_to_div(test_string) {
 					let sup_component = isSup ? first_component : second_component;
 					let sub_component = isSup ? second_component : first_component;
 
-					let wrapper = document.createElement("div");
-					wrapper.style.display = "inline-block";
-					wrapper.style.verticalAlign = "middle";
-
-					let sup_div = document.createElement("div");
-					sup_div.append(sup_component);
-					sup_div.style.zoom = 0.6;
-
-					let sub_div = document.createElement("div");
-					sub_div.append(sub_component);
-					sub_div.style.zoom = 0.6;
-
-					wrapper.appendChild(sup_div);
-					wrapper.appendChild(sub_div);
+					let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
+					wrapper = attach(prev, sup_component, sub_component);
 					final_expression_array.push(wrapper);
 				} else {
-					// original single ^ or _ handling unchanged
-					let smaller_div = document.createElement("div");
-					smaller_div.append(first_component);
-					smaller_div.style.display = "inline-block";
-					smaller_div.style.zoom = 0.6;
-					smaller_div.style.position = "relative";
-					smaller_div.style.lineHeight = "1";
 					if (isSup) {
-						smaller_div.style.bottom = "0.5em";
-						smaller_div.style.transformOrigin = "bottom left";
+						let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
+						final_expression_array.push(attach(prev, first_component));
 					} else {
-						smaller_div.style.top = "0.3em";
-						smaller_div.style.transformOrigin = "top left";
+						let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
+						final_expression_array.push(attach(prev, undefined, first_component));
 					}
-					final_expression_array.push(smaller_div);
 				}
+
+
 			} else {
 				final_expression_array.push(element);
 			}
@@ -198,3 +257,14 @@ customElements.define("m-eq", class extends HTMLElement {
 		});
 	}
 });
+
+// let sample = document.createElement("div")
+// sample.innerText = "Σ"
+// let sample_up = document.createElement("div")
+// sample_up.innerText = "n"
+// let sample_down = document.createElement("div")
+// sample_down.innerText = "r=1"
+
+
+// document.body.append(attach(sample,undefined,undefined, undefined, undefined, sample_up, sample_down, "0.3em"))
+
