@@ -552,11 +552,7 @@ function tex_to_div(test_string) {
 									throw Error("Haven't implemented a space after a singlepop escape thingy")
 								}
 							} else {
-								if (current_word == "sqrt"){
-									final_expression_array.push(new SpecialExpressions(current_word, [next]))
-								} else {
-									throw Error("Not implemented other single pop functions")
-								}
+								final_expression_array.push(new SpecialExpressions(current_word, [next]))
 							}
 							element_index += 1;
 						} else if (double_pop_list.includes(current_word)) {
@@ -582,7 +578,7 @@ function tex_to_div(test_string) {
 				current_word += next;
 				element_index += 1;
 			} while (sense_maker(current_word).length > 0);
-			
+			element_index -= 1;
 		} else {
 			final_expression_array.push(expression_array[element_index]);
 		}
