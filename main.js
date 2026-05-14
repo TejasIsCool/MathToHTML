@@ -1,17 +1,5 @@
 // Only works on a tiny subset of latex
 
-class SpecialExpressions {
-	/**
-	 * Creates an instance of SpecialExpressions.
-	 * @param {String} name
-	 * @param {*} [data=[]] // Like a ^ would store what expression is behind it, or a frac would store two expressions
-	 * @memberof SpecialExpressions
-	 */
-	constructor(name, data = []) {
-		this.name = name;
-		this.data = data;
-	}
-}
 // This attach function below was written by llms, not me, sorry
 // I really didn't want to deal with css formatting thingy
 // TODO: Reimplement it myself
@@ -110,6 +98,21 @@ function toElement(item) {
 	return item;
 }
 
+
+class SpecialExpressions {
+	/**
+	 * Creates an instance of SpecialExpressions.
+	 * @param {String} name
+	 * @param {*} [data=[]] // Like a ^ would store what expression is behind it, or a frac would store two expressions
+	 * @memberof SpecialExpressions
+	 */
+	constructor(name, data = []) {
+		this.name = name;
+		this.data = data;
+	}
+}
+
+
 /**
  * 
  * @param {SpecialExpressions} spec_element 
@@ -123,6 +126,35 @@ function special_to_div(spec_element) {
 		return attach(spec_element.data[1], undefined, undefined, undefined, undefined, undefined, spec_element.data[0], "0.5em")
 	}
 	if (spec_element.name == "sqrt") {
+		// sqrt is a single pop function, so has one piece of data
+
+		/** @type {String | HTMLDivElement} */
+		let content = spec_element.data[0];
+
+		// Want a sqrt symbol like thing, ok whole size of div, and will border above
+		// Can use the unicode symbol itself, seems nice
+		// But I want it to scale with the div!
+		// Can use svg for that ig
+
+
+		// Ok but what will be the border color? Forcing it black seems bad
+		
+		// Oh wait have not though about color at all!
+		// Ig probably default
+		let sub_div = document.createElement("span")
+		sub_div.appendChild(content)
+		sub_div.style.display = "inline flex"
+		sub_div.style.borderTop = "solid thin"
+		content.style.zoom = 0.9;
+
+
+		let out_div = document.createElement("span")
+		out_div.innerText = "√"
+		
+		out_div.appendChild(sub_div)
+		return out_div;
+
+		
 		throw Error("Not implemented sqrt yet")
 	}
 	if (spec_element.name == "cancel") {
@@ -404,15 +436,17 @@ function sense_maker(str) {
 /**
  * The converter!
  *
- * @param {String} test_string
+ * @param {String | } tokens
  * @returns {HTMLDivElement}
  */
-function tex_to_div(test_string) {
+function tex_to_div(tokens) {
 	/**
 	 * On appearance of {, read till you see corresponding } (not an inner })
 	 * And recursively ask for tex_to_div on that substring
 	 *
 	 */
+
+
 
 	// First we split the string into subexpressions
 	// Ie, a list, containing all characters,
@@ -423,18 +457,18 @@ function tex_to_div(test_string) {
 	/** @type {(String | HTMLDivElement)[]} */
 	let expression_array = [];
 
-	while (current_character_index < test_string.length) {
+	while (current_character_index < tokens.length) {
 		// Need to handle braces here, not after, as then considered expression
-		if (test_string[current_character_index] == "\\") {
-			if (current_character_index + 1 < test_string.length && test_string[current_character_index + 1] == "{") {
+		if (tokens[current_character_index] == "\\") {
+			if (current_character_index + 1 < tokens.length && tokens[current_character_index + 1] == "{") {
 				expression_array.push("{");
 				current_character_index += 2;
 				continue;
 			}
 		}
-		if (test_string[current_character_index] == "{") {
+		if (tokens[current_character_index] == "{") {
 			// If { is the last character, then let it be!
-			if (current_character_index + 1 == test_string.length) {
+			if (current_character_index + 1 == tokens.length) {
 				expression_array.push("{");
 				current_character_index += 1;
 				continue;
@@ -443,24 +477,24 @@ function tex_to_div(test_string) {
 			// Read till corresponding }
 			// If no corresponding }, then error?
 			// Or leave it unparsed, as a string?
-			let inner_expression = "";
+			let inner_expression = [];
 			var current_scope = 1;
 			while (current_scope != 0) {
 				// Another { increases scope, a } decreases scope
 				current_character_index += 1;
-				if (current_character_index > test_string.length) {
+				if (current_character_index > tokens.length) {
 					break;
 				}
 
-				if (test_string[current_character_index] == "{") {
+				if (tokens[current_character_index] == "{") {
 					current_scope += 1;
-				} else if (test_string[current_character_index] == "}") {
+				} else if (tokens[current_character_index] == "}") {
 					current_scope -= 1;
 				}
 
 				// So i don't accidentally add the ending }
 				if (current_scope != 0) {
-					inner_expression += test_string[current_character_index];
+					inner_expression.push(tokens[current_character_index]);
 				}
 			}
 			// Probably unterminated }, just write the string as it then
@@ -473,7 +507,7 @@ function tex_to_div(test_string) {
 			let inner_div = tex_to_div(inner_expression);
 			expression_array.push(inner_div);
 		} else {
-			expression_array.push(test_string[current_character_index]);
+			expression_array.push(tokens[current_character_index]);
 		}
 		current_character_index += 1;
 	}
@@ -599,40 +633,27 @@ function tex_to_div(test_string) {
 	}
 	// console.log(final_expression_array);
 	// This is so i can manage the copying
-	div_element.dataset.source = test_string;
+	div_element.dataset.source = tokens;
 	return div_element;
 }
 
 customElements.define("m-eq", class extends HTMLElement {
 	connectedCallback() {
-		const source = this.textContent;
-		this.textContent = "";
-		this.appendChild(tex_to_div(source));
+		let source = this.childNodes;
+		// If its string, then seperate them, if some other object like img, then keep it together.
 
-		this.addEventListener("copy", (e) => {
-			e.preventDefault();
-			const selection = window.getSelection();
-			if (!selection.rangeCount) return;
-
-			const range = selection.getRangeAt(0);
-
-			// Walk up from the selection's start container to find
-			// the deepest div with a source that fully contains the range
-			let node = range.commonAncestorContainer;
-			while (node && node !== this) {
-				if (node.dataset?.source !== undefined) {
-					// Check it fully contains the selection
-					if (node.contains(range.startContainer) && node.contains(range.endContainer)) {
-						e.clipboardData.setData("text/plain", node.dataset.source);
-						return;
-					}
-				}
-				node = node.parentNode;
+		let tokens = [];
+		for (let token of source) {
+			if (token.nodeType == Node.TEXT_NODE) {
+				tokens.push(...token.textContent);
+			} else {
+				// The cloneNode allows deep copy, I don't rly want shadow copy
+				tokens.push(token.cloneNode(true))
 			}
+		}
 
-			// Fallback to full source
-			e.clipboardData.setData("text/plain", source);
-		});
+		this.innerHTML = "";
+		this.appendChild(tex_to_div(tokens));
 	}
 });
 
