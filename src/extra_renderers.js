@@ -22,11 +22,9 @@ export class SpecialExpressions {
 export function special_to_div(spec_element) {
 	if (spec_element.name == "over") {
 		return attach(toElement(spec_element.data[1]), undefined, undefined, undefined, undefined, toElement(spec_element.data[0]), undefined, "0.5em")
-	}
-	if (spec_element.name == "under") {
+	} else if (spec_element.name == "under") {
 		return attach(toElement(spec_element.data[1]), undefined, undefined, undefined, undefined, undefined, toElement(spec_element.data[0]), "0.5em")
-	}
-	if (spec_element.name == "sqrt") {
+	} else if (spec_element.name == "sqrt") {
 		// sqrt is a single pop function, so has one piece of data
 
 		/** @type {String | HTMLDivElement} */
@@ -70,8 +68,7 @@ export function special_to_div(spec_element) {
 		out_div.appendChild(sub_div);
 		return out_div;
 		
-	}
-	if (spec_element.name == "root") {
+	} else if (spec_element.name == "root") {
 		/** @type {String | HTMLDivElement} */
 		let content = spec_element.data[1];
 
@@ -117,11 +114,9 @@ export function special_to_div(spec_element) {
 		upper_element.style.zoom = 0.7;
 
 		return attach(out_div, undefined, undefined, upper_element);
-	}
-	if (spec_element.name == "cancel") {
+	} else if (spec_element.name == "cancel") {
 		throw Error("Not implemented cancel yet")
-	}
-	if (spec_element.name == "frac") {
+	} else if (spec_element.name == "frac") {
 		let numerator = toElement(spec_element.data[0]);
 		let denominator = toElement(spec_element.data[1]);
 		
@@ -157,8 +152,7 @@ export function special_to_div(spec_element) {
 		frac_div.appendChild(denSpan);
 		
 		return frac_div;
-	}
-	if (spec_element.name == "attach") {
+	} else if (spec_element.name == "attach") {
 		return attach(
 			toElement(spec_element.data[0]),
 			toElement(spec_element.data[1]),
@@ -169,8 +163,7 @@ export function special_to_div(spec_element) {
 			toElement(spec_element.data[6]),
 		)
 		// throw Error("How did this even run?")
-	}
-	if (spec_element.name == "attacho") {
+	} else if (spec_element.name == "attacho") {
 		// The attacho is the same as attach, but with an extra parameter of overlap, which is used to control for too much distance, like for summations, use 0.3em
 		return attach(
 			toElement(spec_element.data[0]),
@@ -182,9 +175,20 @@ export function special_to_div(spec_element) {
 			toElement(spec_element.data[6]),
 			spec_element.data[7].innerText // The overlap parameter
 		)
-	}
-
-	if (spec_element.name == "left") {
+	} else if (spec_element.name == "attachos") {
+		// The attacho is the same as attach, but with an extra parameter of overlap, which is used to control for too much distance, like for summations, use 0.3em
+		return attach(
+			toElement(spec_element.data[0]),
+			toElement(spec_element.data[1]),
+			toElement(spec_element.data[2]),
+			toElement(spec_element.data[3]),
+			toElement(spec_element.data[4]),
+			toElement(spec_element.data[5]),
+			toElement(spec_element.data[6]),
+			spec_element.data[7].innerText, 
+            parseFloat(spec_element.data[8].innerText, 10)
+		)
+	} else if (spec_element.name == "left") {
 		// Remember, the braces in the first input will come in a div, due to the way braces are parsed
 		// so will need text content probably
 
@@ -218,9 +222,7 @@ export function special_to_div(spec_element) {
 		out_div.appendChild(sub_div);
 		return out_div;
 		
-		throw Error("Not implemented yet!")
-	}
-	if (spec_element.name == "right") {
+	} else if (spec_element.name == "right") {
 		
 		let brace = spec_element.data[0].innerText;
 		let content = spec_element.data[1]
@@ -251,10 +253,31 @@ export function special_to_div(spec_element) {
 
 		out_div.appendChild(outer_sub_div);
 		return out_div;
-
-
-		throw Error("Not implemented yet!")
-	}
+	} else if (spec_element.name == "scale") {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.zoom = amount;
+        return content;
+    } else if (spec_element.name == "scalew") { // NEED O FIX< ITS OINLY VISUAL
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `scaleX(${amount})`;
+        content.style.transformOrigin = "left center";
+        return content;
+    } else if (spec_element.name == "scaleh") {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `scaleY(${amount})`;
+        content.style.transformOrigin = "center top";
+        return content;
+    } else if (spec_element.name == "rotate") {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `rotate(${amount}deg)`;
+        return content;
+    } else {
+        throw Error(`Unimplemented special expression ${spec_element.name}`)
+    }
 
 }
 

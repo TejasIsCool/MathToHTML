@@ -1,12 +1,13 @@
 export const escape_word_map = {
-	"sum": "Σ",
+	"sum": "Σ​", // has a U+200 zero with character at end, so it is considered different by the parser
 	"sumb": "Σ",
-	"prod": "∏",
+	"prod": "∏​",
+    "prodb": "∏",
 	"union": "∪",
-	"cup": "∪",
+	"cup": "∪​",
 	"bigcup": "∪",
 	"intersect": "∩",
-	"cap": "∩",
+	"cap": "∩​",
 	"bigcap": "∩",
 	"alpha": "α",
 	"a": "α",
@@ -135,7 +136,8 @@ export const escape_word_map = {
 	"supset": "⊃",
 	"supseteq": "⊇",
 
-	"int": "∫",
+	"int": "∫​",
+    "intb": "∫",
 	"iint": "∬",
 	"iiint": "∭",
 	"oint": "∮",
@@ -180,13 +182,21 @@ escape_word_list.push(...[
 	"root",
 	"attach", // \attach{}{}{}{}{}{}{}
 	"attacho", // Like attach, but also additional parameter of overlap
+    "attachos", // Like attacho, but also option to configure how much smaller the super and subscript go (default = 0.6 on the above)
 	// Question, how do i do multi line braces?
 	// Latex does it with \left and \right, so can prob do that.
 	"left", // \left {(}{....}, the first input is what kind of bracket, the other is the content it is scaled with
-	"right" // same iea
+	"right", // same iea
 	// to make matrix, \left {[}{\right{]}{..tablesomehow...}} // so these should not scale stuff
 	// if want to use curly braces, must backslash them, so \left{\{}{....}
 	// these can be multilined as they will scale with the content, should be able to make similar to sqrt
+
+    "scale", // scaling the element by some scale
+    "scalew",
+    "scaleh",
+    "rotate", // works in degrees
+
+
 ])
 // The idea will be to keep scanning forward, till only one of them satisfies
 // If none match, then just print the \ as normal
@@ -194,5 +204,7 @@ escape_word_list.push(...[
 
 // Refers to functions, which pop the next argument behind them.
 export let single_pop_list = ["sqrt", "cancel"]; 
-export let double_pop_list = ["over","under","frac","root","left","right"];
-export let custom_handling_list = ["attach", "attacho"]; // For sqrt, i want it to be usable as a character and a function. SO if sqrt is followed by a string, tis character, if followed by a div, its function
+export let double_pop_list = ["over","under","frac","root","left","right","scale","scalew","scaleh","rotate"];
+export let custom_handling_list = ["attach", "attacho", "attachos"]; // For sqrt, i want it to be usable as a character and a function. SO if sqrt is followed by a string, tis character, if followed by a div, its function
+
+export let updown_modifier = ["Σ", "∏", "∪", "∩", "∫", "∬", "∭", "∮"]

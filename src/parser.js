@@ -1,4 +1,4 @@
-import { escape_word_map, single_pop_list, double_pop_list, custom_handling_list, escape_word_list } from './constants.js';
+import { escape_word_map, single_pop_list, double_pop_list, custom_handling_list, escape_word_list, updown_modifier } from './constants.js';
 import { attach, toElement } from './utils.js';
 import { special_to_div, SpecialExpressions } from './extra_renderers.js';
 
@@ -123,6 +123,27 @@ export function tex_to_div(tokens) {
 				let otherSymbol = isSup ? "_" : "^";
 				let hasPair = element_index + 2 < expr_length && expression_array[element_index + 1] == otherSymbol;
 
+				let prev_raw = final_expression_array.pop() ?? document.createElement("span");
+				if (prev_raw instanceof SpecialExpressions) {
+					prev_raw = special_to_div(prev_raw);
+				}
+
+				// See 
+				let isBigOp = false;
+				if (typeof prev_raw === "string" && updown_modifier.includes(prev_raw)) {
+					isBigOp = true;
+				} else if (prev_raw instanceof HTMLElement && updown_modifier.includes(prev_raw.textContent)) {
+					isBigOp = true;
+				}
+				let prev = toElement(prev_raw)
+
+				if (isBigOp) {
+					// For some reason the sum or integral symbols go to close to the upper limit
+					prev.style.display = "inline-block";
+					prev.style.transform = "translateY(0.08em)"; 
+				}
+
+
 				if (hasPair) {
 					element_index += 2;
 					let second_component = expression_array[element_index];
@@ -130,16 +151,30 @@ export function tex_to_div(tokens) {
 					let sup_component = isSup ? first_component : second_component;
 					let sub_component = isSup ? second_component : first_component;
 
-					let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
-					let wrapper = attach(prev, sup_component, sub_component);
+					let wrapper;
+					if (isBigOp) {
+						// Attaching at top and bottom
+						wrapper = attach(prev, undefined, undefined, undefined, undefined, sup_component, sub_component, "0.3em");
+					} else {
+						// Normal attaching at sup and sub
+						wrapper = attach(prev, sup_component, sub_component);
+					}
+
+					
 					final_expression_array.push(wrapper);
 				} else {
 					if (isSup) {
-						let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
-						final_expression_array.push(attach(prev, first_component));
+						if (isBigOp) {
+							final_expression_array.push(attach(prev, undefined, undefined, undefined, undefined, first_component, undefined, "0.3em"));
+						} else {
+							final_expression_array.push(attach(prev, first_component));
+						}
 					} else {
-						let prev = toElement(final_expression_array.pop() ?? document.createElement("span"));
-						final_expression_array.push(attach(prev, undefined, first_component));
+						if (isBigOp) {
+							final_expression_array.push(attach(prev, undefined, undefined, undefined, undefined, undefined, first_component, "0.3em"));
+						} else {
+							final_expression_array.push(attach(prev, undefined, first_component));
+						}
 					}
 				}
 
@@ -193,7 +228,7 @@ export function tex_to_div(tokens) {
 						} else if (custom_handling_list.includes(current_word)) {
 							if (current_word == "attach") {
 								
-								// Take in 6 different inputs
+								// Take in 6 different extra inputs
 								let data = [];
 								for (let i = 0; i < 7; i++) {
 									if (element_index + i < expr_length) {
@@ -205,9 +240,8 @@ export function tex_to_div(tokens) {
 								// console.log(data)
 								final_expression_array.push(new SpecialExpressions(current_word, data));
 								element_index += 7;
-							}
-							if (current_word == "attacho") {
-								// Take in 7 different inputs
+							} else if (current_word == "attacho") {
+								// Take in 7 different extra inputs
 								let data = [];
 								for (let i = 0; i < 8; i++) {
 									if (element_index + i < expr_length) {
@@ -218,10 +252,36 @@ export function tex_to_div(tokens) {
 								}
 								final_expression_array.push(new SpecialExpressions(current_word, data));
 								element_index += 8;
+							} else if (current_word == "attachos") {
+								// Take in 8 different extra inputs
+								let data = [];
+								for (let i = 0; i < 9; i++) {
+									if (element_index + i < expr_length) {
+										data.push(expression_array[element_index + i])
+									} else {
+										data.push(undefined);
+									}
+								}
+								final_expression_array.push(new SpecialExpressions(current_word, data));
+								element_index += 9;
 							}
 						} else {
 							let out_str = escape_word_map[current_word];
-							final_expression_array.push(out_str);
+							
+							// Integral signs are too big
+							if (out_str === "∫" || out_str === "∫​" || out_str === "∬" || out_str === "∭" || out_str === "∮") {
+								let intSpan = document.createElement("span");
+								intSpan.textContent = out_str;
+								intSpan.style.display = "inline-block";
+								// Shove the ink downwards so it perfectly aligns with standard superscripts
+								intSpan.style.transform = "translateY(0.1em)"; 
+								final_expression_array.push(intSpan);
+							} else {
+								final_expression_array.push(out_str);
+							}
+
+
+							// final_expression_array.push(out_str);
 						}
 						break;
 					}

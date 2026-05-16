@@ -2,6 +2,7 @@
 // TODO:
 // Sum, integrals
 // rot{}{} (so i can do ellipses but diagonal!)
+// scale
 
 import { tex_to_div } from './parser.js';
 
@@ -13,6 +14,7 @@ class MEqElement extends HTMLElement {
 		let tokens = [];
 		for (let token of source) {
 			if (token.nodeType == Node.TEXT_NODE) {
+				// We replace all spaces with this character "\u00A0", which is like space but is not removed by html if there are many
 				let cleanText = token.textContent.replace(/\n\s*/g, '');
 				cleanText = cleanText.replaceAll(" ", "\u00A0");
 				
@@ -198,19 +200,4 @@ class MEqIElement extends HTMLElement {
 
 customElements.define("m-eq", MEqElement);
 customElements.define("m-eqi", MEqIElement);
-
-
-// TODO:
-// Want a regenerate function (like remakes the divs, of a specified part?), maybe for animations?
-
-
-// let sample = document.createElement("div")
-// sample.innerText = "Σ"
-// let sample_up = document.createElement("div")
-// sample_up.innerText = "n"
-// let sample_down = document.createElement("div")
-// sample_down.innerText = "r=1"
-
-
-// document.body.append(attach(sample,undefined,undefined, undefined, undefined, sample_up, sample_down, "0.3em"))
 
