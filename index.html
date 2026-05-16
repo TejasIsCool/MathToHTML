@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MathEngineTest ground!</title>
-    <script defer src="main.js"></script>
+    <script type="module" src="./src/index.js"></script>
 </head>
 <body>
     <p>
         Here is a nice expression!
     </p>
-    <m-eq>Hi! 2+2^{3+3^5_2} So like \{2+2}, does this work? ehllo^{noo}_9ok   ^7 \pi \e \sum \b \Beta \alpha^{\beta} \alpha\gamma \alpha^{\beta^{\gamma^{\delta}}}</m-eq>
-    <br>
-    
     <br>
     <m-eq>\sqrt{Hello\sqrt{Hi \alpha^{\beta^{\gamma^{\delta}}}} \over{hi \over{1 \over{3}{4}}{2}}{hello} }</m-eq>
     <br>
+    <m-eq>Hi! 2+2^{3+3^5_2} So like \{2+2}, does this work? ehllo^{noo}_9ok   ^7 \pi \e \sum \b \Beta \alpha^{\beta} \alpha\gamma \alpha^{\beta^{\gamma^{\delta}}}</m-eq>
+    <br>
+    <br>
+    <m-eq>\sum_{i=3}^{4}i^3</m-eq>
+    <br>
+    
     <br>
     <m-eq>\sqrt{<img src="./testimg.png">} \sqrt{}</m-eq>
     <br>
@@ -23,6 +26,31 @@
     <m-eq>\root{5}{x^2} \frac{hello}{hi} \attach{MainText}{tr}{br}{tl}{bl}{u}{d} \attacho{maintest2}{tr}{br}{tl}{bl}{up}{down}{0.5em}</m-eq>
     <br>
     <m-eq>Testing with m-eq: C^{n}_{r} \under{hi <img src="./testimg.png">}{hello} \over{\leftarrow}{noo}</m-eq><br>
-    Without:
+
+    <br>
+    <m-eq>f(x) = \left{\{}{
+        <m-eq>x+2, x < 0</m-eq><br>
+        <m-eq>x^2   , x > 0</m-eq><br>
+        <m-eq>120, x > 100</m-eq>
+    }</m-eq>
+    <br><br>
+
+    Significant spaces: <m-eq>
+        T = \left{[}{\right{]}{
+            1      2  3<br>
+            4  5  6<br>
+            7  8  9
+        }}
+    </m-eq>
+    <br>
+    InSignificant spaces: <m-eqi>
+        T = \left{[}{\right{]}{
+            1      2  3<br>
+            4  5  6<br>
+            7  8  9
+        }}
+    </m-eqi>
+
+    <!-- Without: -->
 </body>
 </html>
