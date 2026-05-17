@@ -6,21 +6,65 @@
 
 import { tex_to_div } from './parser.js';
 
+function setupAttachObserver(root) {
+	const attachObserver = new ResizeObserver((entries) => {
+		for (let entry of entries) {
+			const main = entry.target;
+			const wrapper = main.closest(".math-attach-wrapper");
+			if (!wrapper) continue;
+
+			const rightCol = wrapper.querySelector(".math-attach-right");
+			if (!rightCol) continue;
+
+			// Remember the original vertical-align on first observation
+			if (!rightCol.dataset.originalVerticalAlign) {
+				rightCol.dataset.originalVerticalAlign = rightCol.style.verticalAlign || "baseline";
+			}
+
+			// Clear previous tweaks so we measure natural height
+			rightCol.style.height = "";
+			rightCol.style.justifyContent = "";
+			rightCol.style.verticalAlign = rightCol.dataset.originalVerticalAlign;
+
+			const mainHeight = main.offsetHeight;
+			const rightHeight = rightCol.offsetHeight;
+
+			// Only stretch when main is substantially taller than the script column.
+			// Normal math (a^3_4, nested scripts) is left untouched.
+			if (mainHeight > rightHeight * 1.8 && rightHeight > 0) {
+				rightCol.style.height = mainHeight + "px";
+				rightCol.style.verticalAlign = "bottom";
+
+				const hasSup = rightCol.querySelector(".math-attach-sup");
+				const hasSub = rightCol.querySelector(".math-attach-sub");
+
+				if (hasSup && hasSub) {
+					rightCol.style.justifyContent = "space-between";
+				} else if (hasSup) {
+					rightCol.style.justifyContent = "flex-start";
+				} else if (hasSub) {
+					rightCol.style.justifyContent = "flex-end";
+				}
+			}
+		}
+	});
+
+	const attachMains = root.querySelectorAll(".math-attach-main");
+	for (let main of attachMains) {
+		attachObserver.observe(main);
+	}
+}
+
 class MEqElement extends HTMLElement {
 	connectedCallback() {
 		let source = this.childNodes;
-		// If its string, then seperate them, if some other object like img, then keep it together.
-
 		let tokens = [];
 		for (let token of source) {
 			if (token.nodeType == Node.TEXT_NODE) {
-				// We replace all spaces with this character "\u00A0", which is like space but is not removed by html if there are many
 				let cleanText = token.textContent.replace(/\n\s*/g, '');
 				cleanText = cleanText.replaceAll(" ", "\u00A0");
-				
 				tokens.push(...cleanText);
 			} else {
-				// The cloneNode allows deep copy, I don't rly want shadow copy
 				tokens.push(token.cloneNode(true))
 			}
 		}
@@ -28,94 +72,63 @@ class MEqElement extends HTMLElement {
 		this.innerHTML = "";
 		this.appendChild(tex_to_div(tokens));
 
-
-
-		// AI CONTENT BELOW
-		// This observer thing updates the sqrt whenever the svg loads
+		// sqrt scaling observer
 		const observer = new ResizeObserver(() => {
 			let symbols = Array.from(this.querySelectorAll(".math-sqrt-symbol")).reverse();
-
 			for (let sym of symbols) {
 				let cont = sym.nextElementSibling;
 				if (!cont || !cont.classList.contains("math-sqrt-content")) continue;
-
-				// 1. Temporarily clear the scale. 
-				// If we don't do this, getBoundingClientRect() will measure the ALREADY scaled height
-				// and the math will shrink back to 1 on the second run!
 				sym.style.transform = "none";
-
-				// 2. Measure the true heights
 				let contHeight = cont.getBoundingClientRect().height;
 				let symHeight = sym.getBoundingClientRect().height;
-
-				// 3. Apply the perfect scale
 				if (symHeight > 0) {
 					let scaleY = contHeight / symHeight * 0.95;
 					sym.style.transform = `scale(1, ${scaleY})`;
 				}
 			}
 		});
-
-		// Tell the observer to watch every single math content box in this equation.
 		let contents = this.querySelectorAll(".math-sqrt-content");
 		for (let cont of contents) {
 			observer.observe(cont);
 		}
 
-
-
+		// brace scaling observer
 		const observer2 = new ResizeObserver(() => {
 			let symbols = Array.from(this.querySelectorAll(".math-brace-symbol")).reverse();
-
 			for (let sym of symbols) {
 				let cont = sym.nextElementSibling;
-				// Handle \right brackets where the content is BEFORE the brace
 				if (!cont || !cont.classList.contains("math-brace-content")) {
 					cont = sym.previousElementSibling;
 				}
 				if (!cont || !cont.classList.contains("math-brace-content")) continue;
-
-				// 1. Temporarily clear the scale. 
-				// If we don't do this, getBoundingClientRect() will measure the ALREADY scaled height
-				// and the math will shrink back to 1 on the second run!
 				sym.style.transform = "none";
-
-				// 2. Measure the true heights
 				let contHeight = cont.getBoundingClientRect().height;
 				let symHeight = sym.getBoundingClientRect().height;
-
-				// 3. Apply the perfect scale
 				if (symHeight > 0) {
 					let scaleY = contHeight / symHeight * 1;
-					let shiftY = contHeight * -0.07; // Needed a small shift upwards
-
+					let shiftY = contHeight * -0.07;
 					sym.style.transform = `translateY(${shiftY}px) scale(1, ${scaleY})`;
-					// sym.style.transform = `scale(1, ${scaleY})`;
 				}
 			}
 		});
-
-		// Tell the observer to watch every single math content box in this equation.
 		contents = this.querySelectorAll(".math-brace-content");
 		for (let cont of contents) {
 			observer2.observe(cont);
 		}
+
+		// sub/sup positioning observer for large elements
+		setupAttachObserver(this);
 	}
 }
 
-
-// Create m-eqi for insignificant spaces, above considers spaces as significant and preserves them
 class MEqIElement extends HTMLElement {
 	connectedCallback() {
 		let source = this.childNodes;
-		// If its string, then seperate them, if some other object like img, then keep it together.
-
 		let tokens = [];
 		for (let token of source) {
 			if (token.nodeType == Node.TEXT_NODE) {
 				tokens.push(...token.textContent);
 			} else {
-				// The cloneNode allows deep copy, I don't rly want shadow copy
 				tokens.push(token.cloneNode(true))
 			}
 		}
@@ -123,81 +136,51 @@ class MEqIElement extends HTMLElement {
 		this.innerHTML = "";
 		this.appendChild(tex_to_div(tokens));
 
-
-
-		// AI CONTENT BELOW
-		// This observer thing updates the sqrt whenever the svg loads
 		const observer = new ResizeObserver(() => {
 			let symbols = Array.from(this.querySelectorAll(".math-sqrt-symbol")).reverse();
-
 			for (let sym of symbols) {
 				let cont = sym.nextElementSibling;
 				if (!cont || !cont.classList.contains("math-sqrt-content")) continue;
-
-				// 1. Temporarily clear the scale. 
-				// If we don't do this, getBoundingClientRect() will measure the ALREADY scaled height
-				// and the math will shrink back to 1 on the second run!
 				sym.style.transform = "none";
-
-				// 2. Measure the true heights
 				let contHeight = cont.getBoundingClientRect().height;
 				let symHeight = sym.getBoundingClientRect().height;
-
-				// 3. Apply the perfect scale
 				if (symHeight > 0) {
 					let scaleY = contHeight / symHeight * 0.95;
 					sym.style.transform = `scale(1, ${scaleY})`;
 				}
 			}
 		});
-
-		// Tell the observer to watch every single math content box in this equation.
 		let contents = this.querySelectorAll(".math-sqrt-content");
 		for (let cont of contents) {
 			observer.observe(cont);
 		}
 
-
-
 		const observer2 = new ResizeObserver(() => {
 			let symbols = Array.from(this.querySelectorAll(".math-brace-symbol")).reverse();
-
 			for (let sym of symbols) {
 				let cont = sym.nextElementSibling;
-				// Handle \right brackets where the content is BEFORE the brace
 				if (!cont || !cont.classList.contains("math-brace-content")) {
 					cont = sym.previousElementSibling;
 				}
 				if (!cont || !cont.classList.contains("math-brace-content")) continue;
-
-				// 1. Temporarily clear the scale. 
-				// If we don't do this, getBoundingClientRect() will measure the ALREADY scaled height
-				// and the math will shrink back to 1 on the second run!
 				sym.style.transform = "none";
-
-				// 2. Measure the true heights
 				let contHeight = cont.getBoundingClientRect().height;
 				let symHeight = sym.getBoundingClientRect().height;
-
-				// 3. Apply the perfect scale
 				if (symHeight > 0) {
 					let scaleY = contHeight / symHeight * 1;
-					let shiftY = contHeight * -0.07; // Needed a small shift upwards
-
+					let shiftY = contHeight * -0.07;
 					sym.style.transform = `translateY(${shiftY}px) scale(1, ${scaleY})`;
-					// sym.style.transform = `scale(1, ${scaleY})`;
 				}
 			}
 		});
-
-		// Tell the observer to watch every single math content box in this equation.
 		contents = this.querySelectorAll(".math-brace-content");
 		for (let cont of contents) {
 			observer2.observe(cont);
 		}
+
+		setupAttachObserver(this);
 	}
 }
 
 customElements.define("m-eq", MEqElement);
 customElements.define("m-eqi", MEqIElement);
-

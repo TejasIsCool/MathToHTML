@@ -1,4 +1,4 @@
-// This attach function below was written by llms, not me, sorry
+// This attach function below was written by llms (gemini pro preview + kimi k2.6), not me, sorry
 // I really didn't want to deal with css formatting thingy
 // TODO: Reimplement it myself
 /**
@@ -17,27 +17,14 @@
  */
 export function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "0em", scale=0.6) {
 	const wrapper = document.createElement("span");
-	// Use inline-flex to force the side columns to stretch to the main element's height!
-	wrapper.style.display = "inline-flex";
-	wrapper.style.alignItems = "stretch";
-	wrapper.style.verticalAlign = "middle";
-
-	let scaleMult = 1;
-	if (main_element instanceof HTMLElement && main_element.style.zoom) {
-		scaleMult = parseFloat(main_element.style.zoom) || 1;
-	}
+	wrapper.style.display = "inline-block";
+	wrapper.style.whiteSpace = "nowrap";
+	wrapper.classList.add("math-attach-wrapper");
 
 	function makeScript(content, overlapSide) {
 		const d = document.createElement("span");
 		d.style.zoom = scale;
-		d.style.display = "inline-flex";     // <--- ADD THIS
-		d.style.alignItems = "center";       // <--- ADD THIS
-		
-		if (overlap !== "0em" && overlapSide) {
-			let val = parseFloat(overlap);
-			let unit = overlap.replace(/[\d.\-]/g, '');
-			d.style[overlapSide] = `-${val * scaleMult}${unit}`;
-		}
+		if (overlap !== "0em") d.style[overlapSide] = `-${overlap}`;
 		d.append(content);
 		return d;
 	}
@@ -47,50 +34,33 @@ export function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "
 		const leftCol = document.createElement("span");
 		leftCol.style.display = "inline-flex";
 		leftCol.style.flexDirection = "column";
-		leftCol.style.alignItems = "flex-end";
-		// A tiny fixed padding keeps scripts from hitting the absolute razor-edge corners
-		leftCol.style.padding = "0.1em 0"; 
-
-		if (lsup && lsub) {
-			leftCol.style.justifyContent = "space-between";
-			leftCol.appendChild(makeScript(lsup));
-			leftCol.appendChild(makeScript(lsub));
-		} else if (lsup) {
-			leftCol.style.justifyContent = "flex-start";
-			leftCol.appendChild(makeScript(lsup));
-		} else if (lsub) {
-			leftCol.style.justifyContent = "flex-end";
-			leftCol.appendChild(makeScript(lsub));
-		}
+		leftCol.style.alignItems = "flex-end"; 
+		if (lsup && lsub) leftCol.style.verticalAlign = "middle";
+		else if (lsup) leftCol.style.verticalAlign = "super";
+		else if (lsub) leftCol.style.verticalAlign = "sub";
+		if (lsup) leftCol.appendChild(makeScript(lsup, "marginBottom"));
+		if (lsub) leftCol.appendChild(makeScript(lsub, "marginTop"));
 		wrapper.appendChild(leftCol);
 	}
 
 	// 2. Center Attachments (up / main / down)
 	const centerCol = document.createElement("span");
-	centerCol.style.display = "inline-flex";
-	centerCol.style.flexDirection = "column";
-	centerCol.style.alignItems = "center";
-	// CRITICAL: align-self: center prevents the center column from stretching.
-	// This preserves all your \attacho overlaps and dictates the container's natural height!
-	centerCol.style.alignSelf = "center"; 
-	
-	if (up) {
-		let upScript = makeScript(up, "marginBottom");
-		upScript.style.zIndex = "1";
-		centerCol.appendChild(upScript);
+	if (up || down) {
+		centerCol.style.display = "inline-flex";
+		centerCol.style.flexDirection = "column";
+		centerCol.style.alignItems = "center";
+		centerCol.style.verticalAlign = "middle";
 	}
+	if (up) centerCol.appendChild(makeScript(up, "marginBottom"));
 
 	const mainSpan = document.createElement("span");
+	mainSpan.style.display = "inline-block";  // Key fix: captures zoomed height properly
 	mainSpan.style.lineHeight = "1";
+	mainSpan.classList.add("math-attach-main");
 	mainSpan.append(main_element);
 	centerCol.appendChild(mainSpan);
 
-	if (down) {
-		let downScript = makeScript(down, "marginTop");
-		downScript.style.zIndex = "1";
-		centerCol.appendChild(downScript);
-	}
-	
+	if (down) centerCol.appendChild(makeScript(down, "marginTop"));
 	wrapper.appendChild(centerCol);
 
 	// 3. Right Attachments (sup / sub)
@@ -98,33 +68,34 @@ export function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "
 		const rightCol = document.createElement("span");
 		rightCol.style.display = "inline-flex";
 		rightCol.style.flexDirection = "column";
-		rightCol.style.padding = "0.1em 0";
+		rightCol.style.alignItems = "flex-start";
+		rightCol.classList.add("math-attach-right");
+		if (sup && sub) rightCol.style.verticalAlign = "middle";
+		else if (sup) rightCol.style.verticalAlign = "super";
+		else if (sub) rightCol.style.verticalAlign = "sub";
 
-		if (sup && sub) {
-			// Center the wrapper perfectly for full-height stacking
-			wrapper.style.verticalAlign = "middle"; 
-
-			rightCol.style.alignItems = "flex-start";
-			rightCol.style.justifyContent = "space-between";
-			rightCol.appendChild(makeScript(sup));
-			rightCol.appendChild(makeScript(sub));
-		} else if (sup) {
-			// NEW FIX: Base-align the wrapper so the main text ignores tall superscripts
-			wrapper.style.verticalAlign = "baseline"; 
-
-			rightCol.style.alignItems = "flex-start";
-			rightCol.style.justifyContent = "flex-start";
-			rightCol.appendChild(makeScript(sup));
-		} else if (sub) {
-			// NEW FIX: Base-align the wrapper so the main text ignores tall subscripts
-			wrapper.style.verticalAlign = "baseline";
-
-			rightCol.style.alignItems = "flex-start";
-			rightCol.style.justifyContent = "flex-end";
-			rightCol.appendChild(makeScript(sub));
+		if (sup) {
+			const s = makeScript(sup, "marginBottom");
+			s.classList.add("math-attach-sup");
+			rightCol.appendChild(s);
+		}
+		if (sub) {
+			const s = makeScript(sub, "marginTop");
+			s.classList.add("math-attach-sub");
+			rightCol.appendChild(s);
 		}
 		wrapper.appendChild(rightCol);
 	}
+
+	// Baseline hack: zero-size inline-block at the end forces the wrapper's
+	// baseline to the line's baseline (which is set by centerCol / mainSpan).
+	// This prevents a stretched rightCol from hijacking the wrapper baseline.
+	const baselineHack = document.createElement("span");
+	baselineHack.style.display = "inline-block";
+	baselineHack.style.width = "0";
+	baselineHack.style.height = "0";
+	baselineHack.style.verticalAlign = "baseline";
+	wrapper.appendChild(baselineHack);
 
 	return wrapper;
 }
