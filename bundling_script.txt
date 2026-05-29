@@ -1,0 +1,4 @@
+# Development version (readable, has source maps for debugging)
+npx esbuild src/index.js --bundle --outfile=dist/math-eq.js --format=iife --sourcemap
+
+npx esbuild src/index.js --bundle --outfile=dist/math-eq.min.js --format=iife --minify
