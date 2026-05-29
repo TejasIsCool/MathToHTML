@@ -273,8 +273,8 @@ export function tex_to_div(tokens) {
 								let intSpan = document.createElement("span");
 								intSpan.textContent = out_str;
 								intSpan.style.display = "inline-block";
-								// Shove the ink downwards so it perfectly aligns with standard superscripts
-								intSpan.style.transform = "translateY(0.1em)"; 
+								// Push it downwards so it perfectly aligns with standard superscripts
+								intSpan.style.transform = "translateY(0.2em)"; 
 								final_expression_array.push(intSpan);
 							} else {
 								final_expression_array.push(out_str);

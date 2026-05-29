@@ -1,6 +1,5 @@
 // Only works on a tiny subset of latex
 // TODO:
-// Sum, integrals
 // rot{}{} (so i can do ellipses but diagonal!)
 // scale
 
