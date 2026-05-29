@@ -24,5 +24,7 @@ If you don't want that, you may use the \<m-eqi> tag.
 
 
 ## Documentation
-Under Construction
-Some examples of using this can be found in [index.html](./index.html)
+Under Construction\
+Some examples of using this can be found in [index.html](./index.html)\
+Here is how the example file renders as \
+<img alt="example image" width="50%" src="./index-render.png"/>
