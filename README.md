@@ -25,3 +25,4 @@ If you don't want that, you may use the \<m-eqi> tag.
 
 ## Documentation
 Under Construction
+Some examples of using this can be found in [index.html](./index.html)
