@@ -115,7 +115,148 @@ export function special_to_div(spec_element) {
 
 		return attach(out_div, undefined, undefined, upper_element);
 	} else if (spec_element.name == "cancel") {
-		throw Error("Not implemented cancel yet")
+		let content = toElement(spec_element.data[0]);
+
+		let wrapper = document.createElement("span")
+		wrapper.appendChild(content);
+
+		wrapper.style.position = "relative";
+		// An svg seems like the smartest way to do this.
+
+		let svgNS = "http://www.w3.org/2000/svg";
+		let svg = document.createElementNS(svgNS, "svg");
+		svg.style.position = 'absolute';
+		svg.style.top = '0';
+		svg.style.left = '0';
+		svg.style.width = '100%';
+		svg.style.height = '100%';
+		svg.style.pointerEvents = 'none'; // Allows clicks to pass through
+
+		
+		let line = document.createElementNS(svgNS, "line");
+		line.setAttribute("x1", "100%"); // Right
+		line.setAttribute("y1", "0");    // Top
+		line.setAttribute("x2", "0");    // Left
+		line.setAttribute("y2", "100%"); // Bottom
+		line.setAttribute("stroke", "black");
+		line.setAttribute("stroke-width", "1");
+
+		svg.appendChild(line);
+		wrapper.appendChild(svg);
+
+		return wrapper;
+		// throw Error("Not implemented cancel yet")
+	} else if (spec_element.name == "cancelangle") {
+		// Simply use css to draw a diagonal line from top right to bottom left over the content
+		/** @type {String | HTMLDivElement} */
+		let content = toElement(spec_element.data[1]);
+		let angle = parseFloat(spec_element.data[0].innerText, 10);
+		// console.log(angle);
+
+
+		let wrapper = document.createElement("span")
+		wrapper.appendChild(content);
+
+		// Css here, cause angles very easy with that
+		wrapper.style.display = "inline-block"
+		wrapper.style.position = "relative";
+		wrapper.style.overflow = 'hidden'; // Cause the line is very long, and is just clipped in the div
+    	wrapper.style.setProperty('--line-angle', `${angle}deg`);
+
+		let line = document.createElement('div');
+    
+		line.style.position = 'absolute';
+		line.style.top = '50%';
+		line.style.left = '50%';
+		// Make it very very long
+		line.style.width = '200vmax';
+		line.style.height = '1px';
+		line.style.backgroundColor = 'black';
+		
+		// Transform puts it in center, and rotate, well, i wonder what that does.
+		line.style.transform = 'translate(-50%, -50%) rotate(var(--line-angle))';
+		line.style.pointerEvents = 'none';
+
+		let contentStyles = window.getComputedStyle(content);
+		let contentZIndex = contentStyles.getPropertyValue('z-index');
+		// console.log(contentZIndex);
+
+		// If the content doesn't have a z-index set, it is "auto"
+		if (contentZIndex === 'auto') {
+			contentZIndex = 0;
+		} else {
+			contentZIndex = parseInt(contentZIndex, 10);
+		}
+
+		line.style.zIndex = contentZIndex + 1;
+		wrapper.appendChild(line);
+
+		return wrapper;
+	} else if (spec_element.name == "canceldir") {
+		
+		/** @type {String | HTMLDivElement} */
+		let content = toElement(spec_element.data[1]);
+		let dir = spec_element.data[0].innerText;
+
+		/** @type {String[]} */
+		let dir_directions = [
+			"tlbr", "brtl", "diagonal", "diag", "\\", "d",
+			"trbl", "bltr", "antidiagonal", "antidiag", "adiag", "/", "ad",
+			"ud", "du", "vertical", "vert", "v", "|",
+			"lr", "rl", "horizontal", "horiz", "h", "-"
+		]
+
+		if (!dir_directions.includes(dir)) {
+			throw Error("Invalid direction. ")
+		}
+		
+
+		let wrapper = document.createElement("span")
+		wrapper.appendChild(content);
+
+		wrapper.style.position = "relative";
+		// An svg seems like the smartest way to do this.
+
+		let svgNS = "http://www.w3.org/2000/svg";
+		let svg = document.createElementNS(svgNS, "svg");
+		svg.style.position = 'absolute';
+		svg.style.top = '0';
+		svg.style.left = '0';
+		svg.style.width = '100%';
+		svg.style.height = '100%';
+		svg.style.pointerEvents = 'none'; // Allows clicks to pass through
+
+		
+		let line = document.createElementNS(svgNS, "line");
+
+		if (["tlbr", "brtl", "diagonal", "diag", "\\", "d"].includes(dir)) {
+			line.setAttribute("x1", "0");
+			line.setAttribute("y1", "0");
+			line.setAttribute("x2","100%");
+			line.setAttribute("y2","100%")
+		} else if (["trbl", "bltr", "antidiagonal", "antidiag", "adiag", "/", "ad",].includes(dir)){
+			line.setAttribute("x1", "100%");
+			line.setAttribute("y1", "0");
+			line.setAttribute("x2", "0");
+			line.setAttribute("y2", "100%");
+		} else if (["ud", "du", "vertical", "vert", "v", "|"].includes(dir)) {
+			line.setAttribute("x1", "50%");
+			line.setAttribute("y1", "0");
+			line.setAttribute("x2", "50%");
+			line.setAttribute("y2", "100%");
+		} else if (["lr", "rl", "horizontal", "horiz", "h", "-"].includes(dir)) {
+			line.setAttribute("x1", "0");
+			line.setAttribute("y1", "50%");
+			line.setAttribute("x2", "100%");
+			line.setAttribute("y2", "50%");
+		}
+		line.setAttribute("stroke", "black");
+		line.setAttribute("stroke-width", "1");
+
+		svg.appendChild(line);
+		wrapper.appendChild(svg);
+
+		return wrapper;
 	} else if (spec_element.name == "frac") {
 		let numerator = toElement(spec_element.data[0]);
 		let denominator = toElement(spec_element.data[1]);

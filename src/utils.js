@@ -100,6 +100,14 @@ export function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "
 	return wrapper;
 }
 
+/**
+ * Converts strings to spans, and leaves the rest as it is
+ *
+ * @export
+ * @template T
+ * @param {T} item
+ * @return {T extends string ? HTMLSpanElement : T} 
+ */
 export function toElement(item) {
 	if (typeof item === "string") {
 		const span = document.createElement("span");

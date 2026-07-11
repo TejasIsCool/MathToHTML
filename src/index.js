@@ -183,3 +183,22 @@ class MEqIElement extends HTMLElement {
 
 customElements.define("m-eq", MEqElement);
 customElements.define("m-eqi", MEqIElement);
+
+
+/**
+ *
+ * Returns a div, after parsing the string inputted
+ * @export
+ * @param {String} str
+ * @return {HTMLDivElement} 
+ */
+export function mathStrToHtml(str) {
+	let cleanText = str.replace(/\n\s*/g, '');
+	cleanText = cleanText.replaceAll(" ", "\u00A0");
+	let tokens = []
+	tokens.push(...cleanText)
+	return tex_to_div(tokens);
+}
+
+// Allow using in console.
+window.mathStrToHtml = mathStrToHtml;

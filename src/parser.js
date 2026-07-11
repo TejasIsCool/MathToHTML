@@ -192,7 +192,7 @@ export function tex_to_div(tokens) {
 			do {
 				matches = sense_maker(current_word);
 				// Why previous_word here? Its because the current_word can be overwritten, to be longer, so I am preserving the previous data
-				// To see if any of the matcches one equals it, if this loop exits or smth
+				// To see if any of the matches one equals it, if this loop exits or smth
 				previous_word = current_word;
 
 				let next = "";
@@ -277,7 +277,10 @@ export function tex_to_div(tokens) {
 								intSpan.style.transform = "translateY(0.2em)"; 
 								final_expression_array.push(intSpan);
 							} else {
-								final_expression_array.push(out_str);
+								// Should convert to div, so I can use custom fonts
+								let symbol_div = toElement(out_str);
+								symbol_div.classList.add("math-to-html-math-symbol")
+								final_expression_array.push(symbol_div);
 							}
 
 

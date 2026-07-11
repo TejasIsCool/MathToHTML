@@ -1,13 +1,14 @@
+/** @type {Object.<string, string>} */
 export const escape_word_map = {
 	"sum": "Σ​", // has a U+200 zero with character at end, so it is considered different by the parser
 	"sumb": "Σ",
-	"prod": "∏​",
+	"prod": "∏​", // U+200
     "prodb": "∏",
 	"union": "∪",
-	"cup": "∪​",
+	"cup": "∪​", // U+200
 	"bigcup": "∪",
 	"intersect": "∩",
-	"cap": "∩​",
+	"cap": "∩​", // U+200
 	"bigcap": "∩",
 	"alpha": "α",
 	"a": "α",
@@ -178,6 +179,8 @@ escape_word_list.push(...[
 	"over", // So \over{a}{b} means put b above a
 	"under",
 	"cancel", // \cancel{} Makes a diagonal strikethrough the character/expression, like in ≠
+	"cancelangle", // \cancel{angle}{stuff}, angle in degrees.
+	"canceldir", // \cancel{dir}{stuff} Cancels in specified directions: trbl (top right bottom left), tlbr (top left bottom right), ud (up to down), lr (left to right)
 	"frac", // \frac{a}{b} is explicitly division, so a above b with a horizontal line between
 	"root",
 	"attach", // \attach{}{}{}{}{}{}{}
@@ -195,8 +198,6 @@ escape_word_list.push(...[
     "scalew",
     "scaleh",
     "rotate", // works in degrees
-
-
 ])
 // The idea will be to keep scanning forward, till only one of them satisfies
 // If none match, then just print the \ as normal
@@ -204,7 +205,7 @@ escape_word_list.push(...[
 
 // Refers to functions, which pop the next argument behind them.
 export let single_pop_list = ["sqrt", "cancel"]; 
-export let double_pop_list = ["over","under","frac","root","left","right","scale","scalew","scaleh","rotate"];
+export let double_pop_list = ["over","under","frac","root","left","right","scale","scalew","scaleh","rotate","cancelangle", "canceldir"];
 export let custom_handling_list = ["attach", "attacho", "attachos"]; // For sqrt, i want it to be usable as a character and a function. SO if sqrt is followed by a string, tis character, if followed by a div, its function
 
 export let updown_modifier = ["Σ", "∏", "∪", "∩", "∫", "∬", "∭", "∮"]
