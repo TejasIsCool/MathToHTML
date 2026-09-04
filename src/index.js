@@ -4,6 +4,34 @@
 // scale
 
 import { tex_to_div } from './parser.js';
+import { setupLineObserver, updateOverline, updateUnderline } from './utils.js';
+
+// Default font to katex
+function injectDefaultStyles() {
+	if (typeof document === 'undefined') return;
+	if (document.getElementById('math-eq-default-styles')) return;
+
+	const style = document.createElement('style');
+	style.id = 'math-eq-default-styles';
+	style.textContent = `
+@import url('https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css');
+
+:where(m-eq, m-eqi) {
+	font-family: 'KaTeX_Main', serif;
+}
+`;
+	const target = document.head || document.documentElement;
+	target.appendChild(style);
+
+	if (document.fonts) {
+		document.fonts.ready.then(() => {
+			document.querySelectorAll('.math-overline').forEach(updateOverline);
+			document.querySelectorAll('.math-underline').forEach(updateUnderline);
+		});
+	}
+}
+
+injectDefaultStyles();
 
 function setupAttachObserver(root) {
 	const attachObserver = new ResizeObserver((entries) => {
@@ -117,6 +145,7 @@ class MEqElement extends HTMLElement {
 
 		// sub/sup positioning observer for large elements
 		setupAttachObserver(this);
+		setupLineObserver(this);
 	}
 }
 
@@ -178,6 +207,7 @@ class MEqIElement extends HTMLElement {
 		}
 
 		setupAttachObserver(this);
+		setupLineObserver(this);
 	}
 }
 

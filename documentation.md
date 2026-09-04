@@ -3,7 +3,7 @@
 To use the script, put this in the head of the script
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/TejasIsCool/MathToHTML@v0.1.2/dist/math-eq.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/TejasIsCool/MathToHTML@v0.1.3/dist/math-eq.min.js" defer></script>
 ```
 
 You can then enter your math equations in the body of the page like this
@@ -13,7 +13,7 @@ You can then enter your math equations in the body of the page like this
 Making content with `<m-eq>` preserves the spaces as written in the html file.\
 If you do not want to preserve spaces, you can use the `<m-eqi>` tag instead.
 
-The tags will render inline (on the same line as written).They can wrap the text after them, if its big enough. This library also <b>does not</b> have the fancy math font for equations, you will have to edit those yourselves (using css).
+The tags will render inline (on the same line as written). They can wrap the text after them, if its big enough. By default, equations use the KaTeX math font (`'KaTeX_Main', serif`), which is loaded automatically. You can easily customize or override the font in your own CSS (e.g. `m-eq { font-family: 'Times New Roman', serif; }`).
 
 ### Commands:
 The syntax has similarities with latex, but it a lot less features and more simpler than it. 
@@ -47,6 +47,9 @@ You can also group stuff inside groups, recursively! So `{{{{Also works}}}}`.\
         ```
         (Here, the right bracket is scaled to the height of the matrix, and the left bracket is scaled to the height of the right bracket, which is the same as the height of the matrix.)\
         There is no matrix command, so this is how they are made.
+    - Overline and Underline:
+        - `\overline{content}`: Draws a horizontal line above the content. Shorter or taller text/content will auto adjust the line position.
+        - `\underline{content}`: Draws a horizontal line below the content. 
     - Cancel: 
         - `\cancel{stuff}` will draw a line over the content from top right to bottom left
         - `\cancelangle{angle}{stuff}` draws a line at your specified angle. The angle must be in degrees.
@@ -55,6 +58,11 @@ You can also group stuff inside groups, recursively! So `{{{{Also works}}}}`.\
             - Top tight to bottom left: `trbl` | `bltr` | `antidiagonal` | `antidiag` | `adiag` | `/` | `ad`
             - Top to bottom: `ud` | `du` | `vertical` | `vert` | `v` | `|`
             - Left to right: `lr` | `rl` | `horizontal` | `horiz` | `h` | `-`
+
+
+- <b>Fonts and Alphabets</b>:
+    - `\mathbb{content}`: Converts ASCII letters and digits inside `{content}` into blackboard bold / double-struck characters (e.g., `\mathbb{R}` becomes ℝ).
+    - `\mathcal{content}`: Converts ASCII letters inside `{content}` into calligraphic / script characters (e.g., `\mathcal{L}` becomes ℒ).
 
 
 - <b>Positioning</b>:
@@ -199,15 +207,32 @@ To use these symbols, just write `\command`, where the command is the command of
 
     ---
 
+    #### Logic / Quantifiers
+
+    | Symbol | Command | Alias(es) |
+    |:---:|---|---|
+    | ∀ | `forall` | - |
+    | ∃ | `exists` | - |
+
+    ---
+
     #### Arithmetic Operators
 
     | Symbol | Command | Alias(es) |
     |:---:|---|---|
-    | × | `times` | - |
+    | × | `times` | `cross` |
     | ÷ | `div` | - |
     | ± | `pm` | - |
     | ∓ | `mp` | - |
     | ⋅ | `cdot` | - |
+
+    ---
+
+    #### Other Symbols
+
+    | Symbol | Command | Alias(es) |
+    |:---:|---|---|
+    | ∞ | `infty` | - |
 
     ---
 

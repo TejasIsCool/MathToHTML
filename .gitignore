@@ -1,0 +1,8 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+jspm_packages/
+
+# Editor settings
+.vscode/
+*.code-workspace

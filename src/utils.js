@@ -116,3 +116,190 @@ export function toElement(item) {
 	}
 	return item;
 }
+
+// Reusable canvas for measuring text ink height dynamically
+let measureCanvas = null;
+let measureCtx = null;
+
+function getMeasureCtx() {
+	if (!measureCtx && typeof document !== "undefined") {
+		measureCanvas = document.createElement("canvas");
+		measureCtx = measureCanvas.getContext("2d");
+	}
+	return measureCtx;
+}
+
+
+
+// Below code is ai Generated as well
+
+/**
+ * Calculates visual ascent (distance from baseline to highest point of text ink or custom elements)
+ * @param {HTMLElement} content 
+ * @param {HTMLElement} [wrapper] 
+ * @returns {number} ascent in pixels
+ */
+export function getVisualAscent(content, wrapper) {
+	let textAscent = 0;
+	const ctx = getMeasureCtx();
+
+	if (ctx) {
+		const text = content.textContent || "";
+		if (text.length > 0) {
+			let font = "16px sans-serif";
+			if (wrapper && wrapper.isConnected) {
+				font = window.getComputedStyle(wrapper).font || font;
+			} else if (typeof window !== "undefined" && document.body) {
+				font = window.getComputedStyle(document.body).font || font;
+			}
+			ctx.font = font;
+			const metrics = ctx.measureText(text);
+			textAscent = metrics.actualBoundingBoxAscent || 0;
+		}
+	}
+
+	let elementAscent = 0;
+	if (wrapper && wrapper.isConnected) {
+		const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+		if (anchor) {
+			const baselineY = anchor.getBoundingClientRect().top;
+			const children = content.querySelectorAll("img, svg, div:not([data-source]), .math-frac, .math-sqrt-content, .math-attach-wrapper, .math-brace-content, .math-overline-line, [style*='height']");
+			for (const child of children) {
+				if (child === wrapper.querySelector(":scope > .math-overline-line") || child.classList.contains("math-baseline-anchor")) continue;
+				const rect = child.getBoundingClientRect();
+				if (rect.height > 0) {
+					const asc = baselineY - rect.top;
+					if (asc > elementAscent) elementAscent = asc;
+				}
+			}
+		}
+	}
+
+	return Math.max(textAscent, elementAscent);
+}
+
+/**
+ * Calculates visual descent (distance from baseline to lowest point of text ink or custom elements)
+ * @param {HTMLElement} content 
+ * @param {HTMLElement} [wrapper] 
+ * @returns {number} descent in pixels
+ */
+export function getVisualDescent(content, wrapper) {
+	let textDescent = 0;
+	const ctx = getMeasureCtx();
+
+	if (ctx) {
+		const text = content.textContent || "";
+		if (text.length > 0) {
+			let font = "16px sans-serif";
+			if (wrapper && wrapper.isConnected) {
+				font = window.getComputedStyle(wrapper).font || font;
+			} else if (typeof window !== "undefined" && document.body) {
+				font = window.getComputedStyle(document.body).font || font;
+			}
+			ctx.font = font;
+			const metrics = ctx.measureText(text);
+			textDescent = metrics.actualBoundingBoxDescent || 0;
+		}
+	}
+
+	let elementDescent = 0;
+	if (wrapper && wrapper.isConnected) {
+		const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+		if (anchor) {
+			const baselineY = anchor.getBoundingClientRect().top;
+			const children = content.querySelectorAll("img, svg, div:not([data-source]), .math-frac, .math-sqrt-content, .math-attach-wrapper, .math-brace-content, .math-underline-line, [style*='height']");
+			for (const child of children) {
+				if (child === wrapper.querySelector(":scope > .math-underline-line") || child.classList.contains("math-baseline-anchor")) continue;
+				const rect = child.getBoundingClientRect();
+				if (rect.height > 0) {
+					const desc = rect.bottom - baselineY;
+					if (desc > elementDescent) elementDescent = desc;
+				}
+			}
+		}
+	}
+
+	return Math.max(textDescent, elementDescent);
+}
+
+/**
+ * Dynamically positions the overline bar above the tallest ink or element relative to the baseline
+ * @param {HTMLElement} wrapper 
+ */
+export function updateOverline(wrapper) {
+	const content = wrapper.querySelector(".math-overline-content");
+	const line = wrapper.querySelector(":scope > .math-overline-line");
+	const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+	if (!content || !line || !anchor) return;
+
+	const wrapperRect = wrapper.getBoundingClientRect();
+	const anchorRect = anchor.getBoundingClientRect();
+	if (wrapperRect.height === 0) return;
+
+	const baselineFromBottom = wrapperRect.bottom - anchorRect.top;
+	const ascent = getVisualAscent(content, wrapper);
+	const gap = 2; // 2px gap above ink
+	const lineBottom = baselineFromBottom + ascent + gap;
+
+	line.style.bottom = `${lineBottom}px`;
+
+	const neededHeight = lineBottom + 2;
+	if (neededHeight > wrapperRect.height) {
+		const currentPad = parseFloat(window.getComputedStyle(wrapper).paddingTop) || 0;
+		wrapper.style.paddingTop = `${neededHeight - wrapperRect.height + currentPad}px`;
+	}
+}
+
+/**
+ * Dynamically positions the underline bar below the lowest ink or element relative to the baseline
+ * @param {HTMLElement} wrapper 
+ */
+export function updateUnderline(wrapper) {
+	const content = wrapper.querySelector(".math-underline-content");
+	const line = wrapper.querySelector(":scope > .math-underline-line");
+	const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+	if (!content || !line || !anchor) return;
+
+	const wrapperRect = wrapper.getBoundingClientRect();
+	const anchorRect = anchor.getBoundingClientRect();
+	if (wrapperRect.height === 0) return;
+
+	const baselineFromBottom = wrapperRect.bottom - anchorRect.top;
+	const descent = getVisualDescent(content, wrapper);
+	const gap = 2; // 2px gap below ink
+	const lineBottom = baselineFromBottom - descent - gap;
+
+	line.style.bottom = `${lineBottom}px`;
+
+	if (lineBottom < 0) {
+		const neededPad = Math.abs(lineBottom) + 2;
+		const currentPad = parseFloat(window.getComputedStyle(wrapper).paddingBottom) || 0;
+		if (neededPad > currentPad) {
+			wrapper.style.paddingBottom = `${neededPad}px`;
+		}
+	}
+}
+
+/**
+ * Observes all overlines and underlines in root and dynamically positions them on layout/resize
+ * @param {HTMLElement} root 
+ */
+export function setupLineObserver(root) {
+	const lineObserver = new ResizeObserver((entries) => {
+		for (const entry of entries) {
+			const el = entry.target;
+			if (el.classList.contains("math-overline")) {
+				updateOverline(el);
+			} else if (el.classList.contains("math-underline")) {
+				updateUnderline(el);
+			}
+		}
+	});
+
+	for (const el of root.querySelectorAll(".math-overline, .math-underline")) {
+		lineObserver.observe(el);
+		if (el.classList.contains("math-overline")) updateOverline(el);
+		else if (el.classList.contains("math-underline")) updateUnderline(el);
+	}
+}

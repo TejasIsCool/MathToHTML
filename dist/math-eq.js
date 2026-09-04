@@ -131,6 +131,8 @@
     "nsim": "\u2241",
     "nsimeq": "\u2244",
     "napprox": "\u2249",
+    "cross": "\xD7",
+    // Same as times, added it for myself
     "prop": "\u221D",
     "propto": "\u221D",
     "in": "\u2208",
@@ -171,7 +173,9 @@
     "^": "^",
     // Like printing the characters, not actually using them
     "_": "_",
-    "\\": "\\"
+    "\\": "\\",
+    "forall": "\u2200",
+    "exists": "\u2203"
   };
   var escape_word_list = Object.keys(escape_word_map).sort((a, b) => b.length - a.length);
   escape_word_list.push(...[
@@ -206,13 +210,137 @@
     // scaling the element by some scale
     "scalew",
     "scaleh",
-    "rotate"
+    "rotate",
     // works in degrees
+    "mathbb",
+    // {R a b} -> ℝ 𝕒 𝕓
+    "mathcal",
+    // {R a b} -> ℛ 𝒶 b
+    "underline",
+    "overline"
   ]);
-  var single_pop_list = ["sqrt", "cancel"];
+  var single_pop_list = ["sqrt", "cancel", "mathbb", "mathcal", "underline", "overline"];
   var double_pop_list = ["over", "under", "frac", "root", "left", "right", "scale", "scalew", "scaleh", "rotate", "cancelangle", "canceldir"];
   var custom_handling_list = ["attach", "attacho", "attachos"];
   var updown_modifier = ["\u03A3", "\u220F", "\u222A", "\u2229", "\u222B", "\u222C", "\u222D", "\u222E"];
+  var mathbb_map = {
+    "a": "\u{1D552}",
+    "b": "\u{1D553}",
+    "c": "\u{1D554}",
+    "d": "\u{1D555}",
+    "e": "\u{1D556}",
+    "f": "\u{1D557}",
+    "g": "\u{1D558}",
+    "h": "\u{1D559}",
+    "i": "\u{1D55A}",
+    "j": "\u{1D55B}",
+    "k": "\u{1D55C}",
+    "l": "\u{1D55D}",
+    "m": "\u{1D55E}",
+    "n": "\u{1D55F}",
+    "o": "\u{1D560}",
+    "p": "\u{1D561}",
+    "q": "\u{1D562}",
+    "r": "\u{1D563}",
+    "s": "\u{1D564}",
+    "t": "\u{1D565}",
+    "u": "\u{1D566}",
+    "v": "\u{1D567}",
+    "w": "\u{1D568}",
+    "x": "\u{1D569}",
+    "y": "\u{1D56A}",
+    "z": "\u{1D56B}",
+    "A": "\u{1D538}",
+    "B": "\u{1D539}",
+    "C": "\u2102",
+    "D": "\u{1D53B}",
+    "E": "\u{1D53C}",
+    "F": "\u{1D53D}",
+    "G": "\u{1D53E}",
+    "H": "\u210D",
+    "I": "\u{1D540}",
+    "J": "\u{1D541}",
+    "K": "\u{1D542}",
+    "L": "\u{1D543}",
+    "M": "\u{1D544}",
+    "N": "\u2115",
+    "O": "\u{1D546}",
+    "P": "\u2119",
+    "Q": "\u211A",
+    "R": "\u211D",
+    "S": "\u{1D54A}",
+    "T": "\u{1D54B}",
+    "U": "\u{1D54C}",
+    "V": "\u{1D54D}",
+    "W": "\u{1D54E}",
+    "X": "\u{1D54F}",
+    "Y": "\u{1D550}",
+    "Z": "\u2124",
+    "0": "\u{1D7D8}",
+    "1": "\u{1D7D9}",
+    "2": "\u{1D7DA}",
+    "3": "\u{1D7DB}",
+    "4": "\u{1D7DC}",
+    "5": "\u{1D7DD}",
+    "6": "\u{1D7DE}",
+    "7": "\u{1D7DF}",
+    "8": "\u{1D7E0}",
+    "9": "\u{1D7E1}"
+  };
+  var mathcal_map = {
+    "a": "\u{1D4B6}",
+    "b": "\u{1D4B7}",
+    "c": "\u{1D4B8}",
+    "d": "\u{1D4B9}",
+    "e": "\u212F",
+    "f": "\u{1D4BB}",
+    "g": "\u210A",
+    "h": "\u{1D4BD}",
+    "i": "\u{1D4BE}",
+    "j": "\u{1D4BF}",
+    "k": "\u{1D4C0}",
+    "l": "\u{1D4C1}",
+    "m": "\u{1D4C2}",
+    "n": "\u{1D4C3}",
+    "o": "\u2134",
+    "p": "\u{1D4C5}",
+    "q": "\u{1D4C6}",
+    "r": "\u{1D4C7}",
+    "s": "\u{1D4C8}",
+    "t": "\u{1D4C9}",
+    "u": "\u{1D4CA}",
+    "v": "\u{1D4CB}",
+    "w": "\u{1D4CC}",
+    "x": "\u{1D4CD}",
+    "y": "\u{1D4CE}",
+    "z": "\u{1D4CF}",
+    "A": "\u{1D49C}",
+    "B": "\u212C",
+    "C": "\u{1D49E}",
+    "D": "\u{1D49F}",
+    "E": "\u2130",
+    "F": "\u2131",
+    "G": "\u{1D4A2}",
+    "H": "\u210B",
+    "I": "\u2110",
+    "J": "\u{1D4A5}",
+    "K": "\u{1D4A6}",
+    "L": "\u2112",
+    "M": "\u2133",
+    "N": "\u{1D4A9}",
+    "O": "\u{1D4AA}",
+    "P": "\u{1D4AB}",
+    "Q": "\u{1D4AC}",
+    "R": "\u211B",
+    "S": "\u{1D4AE}",
+    "T": "\u{1D4AF}",
+    "U": "\u{1D4B0}",
+    "V": "\u{1D4B1}",
+    "W": "\u{1D4B2}",
+    "X": "\u{1D4B3}",
+    "Y": "\u{1D4B4}",
+    "Z": "\u{1D4B5}"
+  };
 
   // src/utils.js
   function attach(main_element, sup, sub, lsup, lsub, up, down, overlap = "0em", scale = 0.6) {
@@ -292,6 +420,142 @@
     }
     return item;
   }
+  var measureCanvas = null;
+  var measureCtx = null;
+  function getMeasureCtx() {
+    if (!measureCtx && typeof document !== "undefined") {
+      measureCanvas = document.createElement("canvas");
+      measureCtx = measureCanvas.getContext("2d");
+    }
+    return measureCtx;
+  }
+  function getVisualAscent(content, wrapper) {
+    let textAscent = 0;
+    const ctx = getMeasureCtx();
+    if (ctx) {
+      const text = content.textContent || "";
+      if (text.length > 0) {
+        let font = "16px sans-serif";
+        if (wrapper && wrapper.isConnected) {
+          font = window.getComputedStyle(wrapper).font || font;
+        } else if (typeof window !== "undefined" && document.body) {
+          font = window.getComputedStyle(document.body).font || font;
+        }
+        ctx.font = font;
+        const metrics = ctx.measureText(text);
+        textAscent = metrics.actualBoundingBoxAscent || 0;
+      }
+    }
+    let elementAscent = 0;
+    if (wrapper && wrapper.isConnected) {
+      const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+      if (anchor) {
+        const baselineY = anchor.getBoundingClientRect().top;
+        const children = content.querySelectorAll("img, svg, div:not([data-source]), .math-frac, .math-sqrt-content, .math-attach-wrapper, .math-brace-content, .math-overline-line, [style*='height']");
+        for (const child of children) {
+          if (child === wrapper.querySelector(":scope > .math-overline-line") || child.classList.contains("math-baseline-anchor")) continue;
+          const rect = child.getBoundingClientRect();
+          if (rect.height > 0) {
+            const asc = baselineY - rect.top;
+            if (asc > elementAscent) elementAscent = asc;
+          }
+        }
+      }
+    }
+    return Math.max(textAscent, elementAscent);
+  }
+  function getVisualDescent(content, wrapper) {
+    let textDescent = 0;
+    const ctx = getMeasureCtx();
+    if (ctx) {
+      const text = content.textContent || "";
+      if (text.length > 0) {
+        let font = "16px sans-serif";
+        if (wrapper && wrapper.isConnected) {
+          font = window.getComputedStyle(wrapper).font || font;
+        } else if (typeof window !== "undefined" && document.body) {
+          font = window.getComputedStyle(document.body).font || font;
+        }
+        ctx.font = font;
+        const metrics = ctx.measureText(text);
+        textDescent = metrics.actualBoundingBoxDescent || 0;
+      }
+    }
+    let elementDescent = 0;
+    if (wrapper && wrapper.isConnected) {
+      const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+      if (anchor) {
+        const baselineY = anchor.getBoundingClientRect().top;
+        const children = content.querySelectorAll("img, svg, div:not([data-source]), .math-frac, .math-sqrt-content, .math-attach-wrapper, .math-brace-content, .math-underline-line, [style*='height']");
+        for (const child of children) {
+          if (child === wrapper.querySelector(":scope > .math-underline-line") || child.classList.contains("math-baseline-anchor")) continue;
+          const rect = child.getBoundingClientRect();
+          if (rect.height > 0) {
+            const desc = rect.bottom - baselineY;
+            if (desc > elementDescent) elementDescent = desc;
+          }
+        }
+      }
+    }
+    return Math.max(textDescent, elementDescent);
+  }
+  function updateOverline(wrapper) {
+    const content = wrapper.querySelector(".math-overline-content");
+    const line = wrapper.querySelector(":scope > .math-overline-line");
+    const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+    if (!content || !line || !anchor) return;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    if (wrapperRect.height === 0) return;
+    const baselineFromBottom = wrapperRect.bottom - anchorRect.top;
+    const ascent = getVisualAscent(content, wrapper);
+    const gap = 2;
+    const lineBottom = baselineFromBottom + ascent + gap;
+    line.style.bottom = `${lineBottom}px`;
+    const neededHeight = lineBottom + 2;
+    if (neededHeight > wrapperRect.height) {
+      const currentPad = parseFloat(window.getComputedStyle(wrapper).paddingTop) || 0;
+      wrapper.style.paddingTop = `${neededHeight - wrapperRect.height + currentPad}px`;
+    }
+  }
+  function updateUnderline(wrapper) {
+    const content = wrapper.querySelector(".math-underline-content");
+    const line = wrapper.querySelector(":scope > .math-underline-line");
+    const anchor = wrapper.querySelector(":scope > .math-baseline-anchor");
+    if (!content || !line || !anchor) return;
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const anchorRect = anchor.getBoundingClientRect();
+    if (wrapperRect.height === 0) return;
+    const baselineFromBottom = wrapperRect.bottom - anchorRect.top;
+    const descent = getVisualDescent(content, wrapper);
+    const gap = 2;
+    const lineBottom = baselineFromBottom - descent - gap;
+    line.style.bottom = `${lineBottom}px`;
+    if (lineBottom < 0) {
+      const neededPad = Math.abs(lineBottom) + 2;
+      const currentPad = parseFloat(window.getComputedStyle(wrapper).paddingBottom) || 0;
+      if (neededPad > currentPad) {
+        wrapper.style.paddingBottom = `${neededPad}px`;
+      }
+    }
+  }
+  function setupLineObserver(root) {
+    const lineObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const el = entry.target;
+        if (el.classList.contains("math-overline")) {
+          updateOverline(el);
+        } else if (el.classList.contains("math-underline")) {
+          updateUnderline(el);
+        }
+      }
+    });
+    for (const el of root.querySelectorAll(".math-overline, .math-underline")) {
+      lineObserver.observe(el);
+      if (el.classList.contains("math-overline")) updateOverline(el);
+      else if (el.classList.contains("math-underline")) updateUnderline(el);
+    }
+  }
 
   // src/extra_renderers.js
   var SpecialExpressions = class {
@@ -307,302 +571,412 @@
     }
   };
   function special_to_div(spec_element) {
-    if (spec_element.name == "over") {
-      return attach(toElement(spec_element.data[1]), void 0, void 0, void 0, void 0, toElement(spec_element.data[0]), void 0, "0.5em");
-    } else if (spec_element.name == "under") {
-      return attach(toElement(spec_element.data[1]), void 0, void 0, void 0, void 0, void 0, toElement(spec_element.data[0]), "0.5em");
-    } else if (spec_element.name == "sqrt") {
-      let content = spec_element.data[0];
-      let sub_div = document.createElement("span");
-      sub_div.style.display = "inline-block";
-      sub_div.style.borderTop = "solid thin";
-      sub_div.classList.add("math-sqrt-content");
-      sub_div.style.zoom = 0.9;
-      sub_div.appendChild(content);
-      let out_div = document.createElement("span");
-      out_div.style.display = "inline-flex";
-      out_div.style.alignItems = "flex-end";
-      out_div.style.verticalAlign = "middle";
-      let outer_sub_div = document.createElement("span");
-      outer_sub_div.textContent = "\u221A";
-      outer_sub_div.classList.add("math-sqrt-symbol");
-      outer_sub_div.style.transformOrigin = "bottom center";
-      outer_sub_div.style.lineHeight = "1";
-      outer_sub_div.style.display = "inline-block";
-      out_div.appendChild(outer_sub_div);
-      out_div.appendChild(sub_div);
-      return out_div;
-    } else if (spec_element.name == "root") {
-      let content = spec_element.data[1];
-      let sub_div = document.createElement("span");
-      sub_div.style.display = "inline-block";
-      sub_div.style.borderTop = "solid thin";
-      sub_div.classList.add("math-sqrt-content");
-      sub_div.style.zoom = 0.9;
-      sub_div.appendChild(content);
-      let out_div = document.createElement("span");
-      out_div.style.display = "inline-flex";
-      out_div.style.alignItems = "flex-end";
-      out_div.style.verticalAlign = "middle";
-      let outer_sub_div = document.createElement("span");
-      outer_sub_div.textContent = "\u221A";
-      outer_sub_div.classList.add("math-sqrt-symbol");
-      outer_sub_div.style.transformOrigin = "bottom center";
-      outer_sub_div.style.lineHeight = "1";
-      outer_sub_div.style.display = "inline-block";
-      out_div.appendChild(outer_sub_div);
-      out_div.appendChild(sub_div);
-      let upper_element = toElement(spec_element.data[0]);
-      upper_element.style.zoom = 0.7;
-      return attach(out_div, void 0, void 0, upper_element);
-    } else if (spec_element.name == "cancel") {
-      let content = toElement(spec_element.data[0]);
-      let wrapper = document.createElement("span");
-      wrapper.appendChild(content);
-      wrapper.style.position = "relative";
-      let svgNS = "http://www.w3.org/2000/svg";
-      let svg = document.createElementNS(svgNS, "svg");
-      svg.style.position = "absolute";
-      svg.style.top = "0";
-      svg.style.left = "0";
-      svg.style.width = "100%";
-      svg.style.height = "100%";
-      svg.style.pointerEvents = "none";
-      let line = document.createElementNS(svgNS, "line");
-      line.setAttribute("x1", "100%");
-      line.setAttribute("y1", "0");
-      line.setAttribute("x2", "0");
-      line.setAttribute("y2", "100%");
-      line.setAttribute("stroke", "black");
-      line.setAttribute("stroke-width", "1");
-      svg.appendChild(line);
-      wrapper.appendChild(svg);
-      return wrapper;
-    } else if (spec_element.name == "cancelangle") {
-      let content = toElement(spec_element.data[1]);
-      let angle = parseFloat(spec_element.data[0].innerText, 10);
-      let wrapper = document.createElement("span");
-      wrapper.appendChild(content);
-      wrapper.style.display = "inline-block";
-      wrapper.style.position = "relative";
-      wrapper.style.overflow = "hidden";
-      wrapper.style.setProperty("--line-angle", `${angle}deg`);
-      let line = document.createElement("div");
-      line.style.position = "absolute";
-      line.style.top = "50%";
-      line.style.left = "50%";
-      line.style.width = "200vmax";
-      line.style.height = "1px";
-      line.style.backgroundColor = "black";
-      line.style.transform = "translate(-50%, -50%) rotate(var(--line-angle))";
-      line.style.pointerEvents = "none";
-      let contentStyles = window.getComputedStyle(content);
-      let contentZIndex = contentStyles.getPropertyValue("z-index");
-      if (contentZIndex === "auto") {
-        contentZIndex = 0;
-      } else {
-        contentZIndex = parseInt(contentZIndex, 10);
+    switch (spec_element.name) {
+      case "over":
+        return attach(toElement(spec_element.data[1]), void 0, void 0, void 0, void 0, toElement(spec_element.data[0]), void 0, "0.5em");
+      case "under":
+        return attach(toElement(spec_element.data[1]), void 0, void 0, void 0, void 0, void 0, toElement(spec_element.data[0]), "0.5em");
+      case "sqrt": {
+        let content = spec_element.data[0];
+        let sub_div = document.createElement("span");
+        sub_div.style.display = "inline-block";
+        sub_div.style.borderTop = "solid thin";
+        sub_div.classList.add("math-sqrt-content");
+        sub_div.style.zoom = 0.9;
+        sub_div.appendChild(content);
+        let out_div = document.createElement("span");
+        out_div.style.display = "inline-flex";
+        out_div.style.alignItems = "flex-end";
+        out_div.style.verticalAlign = "middle";
+        let outer_sub_div = document.createElement("span");
+        outer_sub_div.textContent = "\u221A";
+        outer_sub_div.classList.add("math-sqrt-symbol");
+        outer_sub_div.style.transformOrigin = "bottom center";
+        outer_sub_div.style.lineHeight = "1";
+        outer_sub_div.style.display = "inline-block";
+        out_div.appendChild(outer_sub_div);
+        out_div.appendChild(sub_div);
+        return out_div;
       }
-      line.style.zIndex = contentZIndex + 1;
-      wrapper.appendChild(line);
-      return wrapper;
-    } else if (spec_element.name == "canceldir") {
-      let content = toElement(spec_element.data[1]);
-      let dir = spec_element.data[0].innerText;
-      let dir_directions = [
-        "tlbr",
-        "brtl",
-        "diagonal",
-        "diag",
-        "\\",
-        "d",
-        "trbl",
-        "bltr",
-        "antidiagonal",
-        "antidiag",
-        "adiag",
-        "/",
-        "ad",
-        "ud",
-        "du",
-        "vertical",
-        "vert",
-        "v",
-        "|",
-        "lr",
-        "rl",
-        "horizontal",
-        "horiz",
-        "h",
-        "-"
-      ];
-      if (!dir_directions.includes(dir)) {
-        throw Error("Invalid direction. ");
+      case "root": {
+        let content = spec_element.data[1];
+        let sub_div = document.createElement("span");
+        sub_div.style.display = "inline-block";
+        sub_div.style.borderTop = "solid thin";
+        sub_div.classList.add("math-sqrt-content");
+        sub_div.style.zoom = 0.9;
+        sub_div.appendChild(content);
+        let out_div = document.createElement("span");
+        out_div.style.display = "inline-flex";
+        out_div.style.alignItems = "flex-end";
+        out_div.style.verticalAlign = "middle";
+        let outer_sub_div = document.createElement("span");
+        outer_sub_div.textContent = "\u221A";
+        outer_sub_div.classList.add("math-sqrt-symbol");
+        outer_sub_div.style.transformOrigin = "bottom center";
+        outer_sub_div.style.lineHeight = "1";
+        outer_sub_div.style.display = "inline-block";
+        out_div.appendChild(outer_sub_div);
+        out_div.appendChild(sub_div);
+        let upper_element = toElement(spec_element.data[0]);
+        upper_element.style.zoom = 0.7;
+        return attach(out_div, void 0, void 0, upper_element);
       }
-      let wrapper = document.createElement("span");
-      wrapper.appendChild(content);
-      wrapper.style.position = "relative";
-      let svgNS = "http://www.w3.org/2000/svg";
-      let svg = document.createElementNS(svgNS, "svg");
-      svg.style.position = "absolute";
-      svg.style.top = "0";
-      svg.style.left = "0";
-      svg.style.width = "100%";
-      svg.style.height = "100%";
-      svg.style.pointerEvents = "none";
-      let line = document.createElementNS(svgNS, "line");
-      if (["tlbr", "brtl", "diagonal", "diag", "\\", "d"].includes(dir)) {
-        line.setAttribute("x1", "0");
-        line.setAttribute("y1", "0");
-        line.setAttribute("x2", "100%");
-        line.setAttribute("y2", "100%");
-      } else if (["trbl", "bltr", "antidiagonal", "antidiag", "adiag", "/", "ad"].includes(dir)) {
+      case "cancel": {
+        let content = toElement(spec_element.data[0]);
+        let wrapper = document.createElement("span");
+        wrapper.appendChild(content);
+        wrapper.style.position = "relative";
+        let svgNS = "http://www.w3.org/2000/svg";
+        let svg = document.createElementNS(svgNS, "svg");
+        svg.style.position = "absolute";
+        svg.style.top = "0";
+        svg.style.left = "0";
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.pointerEvents = "none";
+        let line = document.createElementNS(svgNS, "line");
         line.setAttribute("x1", "100%");
         line.setAttribute("y1", "0");
         line.setAttribute("x2", "0");
         line.setAttribute("y2", "100%");
-      } else if (["ud", "du", "vertical", "vert", "v", "|"].includes(dir)) {
-        line.setAttribute("x1", "50%");
-        line.setAttribute("y1", "0");
-        line.setAttribute("x2", "50%");
-        line.setAttribute("y2", "100%");
-      } else if (["lr", "rl", "horizontal", "horiz", "h", "-"].includes(dir)) {
-        line.setAttribute("x1", "0");
-        line.setAttribute("y1", "50%");
-        line.setAttribute("x2", "100%");
-        line.setAttribute("y2", "50%");
+        line.setAttribute("stroke", "black");
+        line.setAttribute("stroke-width", "1");
+        svg.appendChild(line);
+        wrapper.appendChild(svg);
+        return wrapper;
       }
-      line.setAttribute("stroke", "black");
-      line.setAttribute("stroke-width", "1");
-      svg.appendChild(line);
-      wrapper.appendChild(svg);
-      return wrapper;
-    } else if (spec_element.name == "frac") {
-      let numerator = toElement(spec_element.data[0]);
-      let denominator = toElement(spec_element.data[1]);
-      let frac_div = document.createElement("span");
-      frac_div.style.display = "inline-flex";
-      frac_div.style.flexDirection = "column";
-      frac_div.style.alignItems = "center";
-      frac_div.style.verticalAlign = "middle";
-      frac_div.style.whiteSpace = "nowrap";
-      frac_div.style.lineHeight = "1";
-      frac_div.style.zoom = 0.8;
-      let numSpan = document.createElement("span");
-      numSpan.style.display = "inline-block";
-      numSpan.style.paddingBottom = "0.05em";
-      numSpan.appendChild(numerator);
-      frac_div.appendChild(numSpan);
-      let bar = document.createElement("span");
-      bar.style.display = "inline-block";
-      bar.style.width = "100%";
-      bar.style.borderTop = "solid 0.05em";
-      bar.style.margin = "0.05em 0";
-      frac_div.appendChild(bar);
-      let denSpan = document.createElement("span");
-      denSpan.style.display = "inline-block";
-      denSpan.style.paddingTop = "0.05em";
-      denSpan.appendChild(denominator);
-      frac_div.appendChild(denSpan);
-      return frac_div;
-    } else if (spec_element.name == "attach") {
-      return attach(
-        toElement(spec_element.data[0]),
-        toElement(spec_element.data[1]),
-        toElement(spec_element.data[2]),
-        toElement(spec_element.data[3]),
-        toElement(spec_element.data[4]),
-        toElement(spec_element.data[5]),
-        toElement(spec_element.data[6])
-      );
-    } else if (spec_element.name == "attacho") {
-      return attach(
-        toElement(spec_element.data[0]),
-        toElement(spec_element.data[1]),
-        toElement(spec_element.data[2]),
-        toElement(spec_element.data[3]),
-        toElement(spec_element.data[4]),
-        toElement(spec_element.data[5]),
-        toElement(spec_element.data[6]),
-        spec_element.data[7].innerText
-        // The overlap parameter
-      );
-    } else if (spec_element.name == "attachos") {
-      return attach(
-        toElement(spec_element.data[0]),
-        toElement(spec_element.data[1]),
-        toElement(spec_element.data[2]),
-        toElement(spec_element.data[3]),
-        toElement(spec_element.data[4]),
-        toElement(spec_element.data[5]),
-        toElement(spec_element.data[6]),
-        spec_element.data[7].innerText,
-        parseFloat(spec_element.data[8].innerText, 10)
-      );
-    } else if (spec_element.name == "left") {
-      let brace = spec_element.data[0].innerText;
-      let content = spec_element.data[1];
-      let sub_div = document.createElement("span");
-      sub_div.style.display = "inline-block";
-      sub_div.classList.add("math-brace-content");
-      sub_div.appendChild(content);
-      let out_div = document.createElement("span");
-      out_div.style.display = "inline-flex";
-      out_div.style.alignItems = "center";
-      out_div.style.verticalAlign = "middle";
-      let outer_sub_div = document.createElement("span");
-      outer_sub_div.textContent = brace;
-      outer_sub_div.classList.add("math-brace-symbol");
-      outer_sub_div.style.transformOrigin = "center center";
-      outer_sub_div.style.lineHeight = "1";
-      outer_sub_div.style.display = "inline-block";
-      out_div.appendChild(outer_sub_div);
-      out_div.appendChild(sub_div);
-      return out_div;
-    } else if (spec_element.name == "right") {
-      let brace = spec_element.data[0].innerText;
-      let content = spec_element.data[1];
-      let sub_div = document.createElement("span");
-      sub_div.style.display = "inline-block";
-      sub_div.classList.add("math-brace-content");
-      sub_div.appendChild(content);
-      let out_div = document.createElement("span");
-      out_div.style.display = "inline-flex";
-      out_div.style.alignItems = "center";
-      out_div.style.verticalAlign = "middle";
-      let outer_sub_div = document.createElement("span");
-      outer_sub_div.textContent = brace;
-      outer_sub_div.classList.add("math-brace-symbol");
-      outer_sub_div.style.transformOrigin = "center center";
-      outer_sub_div.style.lineHeight = "1";
-      outer_sub_div.style.display = "inline-block";
-      out_div.appendChild(sub_div);
-      out_div.appendChild(outer_sub_div);
-      return out_div;
-    } else if (spec_element.name == "scale") {
-      let amount = parseFloat(spec_element.data[0].innerText, 10);
-      let content = toElement(spec_element.data[1]);
-      content.style.zoom = amount;
-      return content;
-    } else if (spec_element.name == "scalew") {
-      let amount = parseFloat(spec_element.data[0].innerText, 10);
-      let content = toElement(spec_element.data[1]);
-      content.style.transform = `scaleX(${amount})`;
-      content.style.transformOrigin = "left center";
-      return content;
-    } else if (spec_element.name == "scaleh") {
-      let amount = parseFloat(spec_element.data[0].innerText, 10);
-      let content = toElement(spec_element.data[1]);
-      content.style.transform = `scaleY(${amount})`;
-      content.style.transformOrigin = "center top";
-      return content;
-    } else if (spec_element.name == "rotate") {
-      let amount = parseFloat(spec_element.data[0].innerText, 10);
-      let content = toElement(spec_element.data[1]);
-      content.style.transform = `rotate(${amount}deg)`;
-      return content;
-    } else {
-      throw Error(`Unimplemented special expression ${spec_element.name}`);
+      case "cancelangle": {
+        let content = toElement(spec_element.data[1]);
+        let angle = parseFloat(spec_element.data[0].innerText, 10);
+        let wrapper = document.createElement("span");
+        wrapper.appendChild(content);
+        wrapper.style.display = "inline-block";
+        wrapper.style.position = "relative";
+        wrapper.style.overflow = "hidden";
+        wrapper.style.setProperty("--line-angle", `${angle}deg`);
+        let line = document.createElement("div");
+        line.style.position = "absolute";
+        line.style.top = "50%";
+        line.style.left = "50%";
+        line.style.width = "200vmax";
+        line.style.height = "1px";
+        line.style.backgroundColor = "black";
+        line.style.transform = "translate(-50%, -50%) rotate(var(--line-angle))";
+        line.style.pointerEvents = "none";
+        let contentStyles = window.getComputedStyle(content);
+        let contentZIndex = contentStyles.getPropertyValue("z-index");
+        if (contentZIndex === "auto") {
+          contentZIndex = 0;
+        } else {
+          contentZIndex = parseInt(contentZIndex, 10);
+        }
+        line.style.zIndex = contentZIndex + 1;
+        wrapper.appendChild(line);
+        return wrapper;
+      }
+      case "canceldir": {
+        let content = toElement(spec_element.data[1]);
+        let dir = spec_element.data[0].innerText;
+        let dir_directions = [
+          "tlbr",
+          "brtl",
+          "diagonal",
+          "diag",
+          "\\",
+          "d",
+          "trbl",
+          "bltr",
+          "antidiagonal",
+          "antidiag",
+          "adiag",
+          "/",
+          "ad",
+          "ud",
+          "du",
+          "vertical",
+          "vert",
+          "v",
+          "|",
+          "lr",
+          "rl",
+          "horizontal",
+          "horiz",
+          "h",
+          "-"
+        ];
+        if (!dir_directions.includes(dir)) {
+          throw Error("Invalid direction. ");
+        }
+        let wrapper = document.createElement("span");
+        wrapper.appendChild(content);
+        wrapper.style.position = "relative";
+        let svgNS = "http://www.w3.org/2000/svg";
+        let svg = document.createElementNS(svgNS, "svg");
+        svg.style.position = "absolute";
+        svg.style.top = "0";
+        svg.style.left = "0";
+        svg.style.width = "100%";
+        svg.style.height = "100%";
+        svg.style.pointerEvents = "none";
+        let line = document.createElementNS(svgNS, "line");
+        if (["tlbr", "brtl", "diagonal", "diag", "\\", "d"].includes(dir)) {
+          line.setAttribute("x1", "0");
+          line.setAttribute("y1", "0");
+          line.setAttribute("x2", "100%");
+          line.setAttribute("y2", "100%");
+        } else if (["trbl", "bltr", "antidiagonal", "antidiag", "adiag", "/", "ad"].includes(dir)) {
+          line.setAttribute("x1", "100%");
+          line.setAttribute("y1", "0");
+          line.setAttribute("x2", "0");
+          line.setAttribute("y2", "100%");
+        } else if (["ud", "du", "vertical", "vert", "v", "|"].includes(dir)) {
+          line.setAttribute("x1", "50%");
+          line.setAttribute("y1", "0");
+          line.setAttribute("x2", "50%");
+          line.setAttribute("y2", "100%");
+        } else if (["lr", "rl", "horizontal", "horiz", "h", "-"].includes(dir)) {
+          line.setAttribute("x1", "0");
+          line.setAttribute("y1", "50%");
+          line.setAttribute("x2", "100%");
+          line.setAttribute("y2", "50%");
+        }
+        line.setAttribute("stroke", "black");
+        line.setAttribute("stroke-width", "1");
+        svg.appendChild(line);
+        wrapper.appendChild(svg);
+        return wrapper;
+      }
+      case "frac": {
+        let numerator = toElement(spec_element.data[0]);
+        let denominator = toElement(spec_element.data[1]);
+        let frac_div = document.createElement("span");
+        frac_div.style.display = "inline-flex";
+        frac_div.style.flexDirection = "column";
+        frac_div.style.alignItems = "center";
+        frac_div.style.verticalAlign = "middle";
+        frac_div.style.whiteSpace = "nowrap";
+        frac_div.style.lineHeight = "1";
+        frac_div.style.zoom = 0.8;
+        let numSpan = document.createElement("span");
+        numSpan.style.display = "inline-block";
+        numSpan.style.paddingBottom = "0.05em";
+        numSpan.appendChild(numerator);
+        frac_div.appendChild(numSpan);
+        let bar = document.createElement("span");
+        bar.style.display = "inline-block";
+        bar.style.width = "100%";
+        bar.style.borderTop = "solid 0.05em";
+        bar.style.margin = "0.05em 0";
+        frac_div.appendChild(bar);
+        let denSpan = document.createElement("span");
+        denSpan.style.display = "inline-block";
+        denSpan.style.paddingTop = "0.05em";
+        denSpan.appendChild(denominator);
+        frac_div.appendChild(denSpan);
+        return frac_div;
+      }
+      case "attach": {
+        return attach(
+          toElement(spec_element.data[0]),
+          toElement(spec_element.data[1]),
+          toElement(spec_element.data[2]),
+          toElement(spec_element.data[3]),
+          toElement(spec_element.data[4]),
+          toElement(spec_element.data[5]),
+          toElement(spec_element.data[6])
+        );
+      }
+      case "attacho": {
+        return attach(
+          toElement(spec_element.data[0]),
+          toElement(spec_element.data[1]),
+          toElement(spec_element.data[2]),
+          toElement(spec_element.data[3]),
+          toElement(spec_element.data[4]),
+          toElement(spec_element.data[5]),
+          toElement(spec_element.data[6]),
+          spec_element.data[7].innerText
+          // The overlap parameter
+        );
+      }
+      case "attachos": {
+        return attach(
+          toElement(spec_element.data[0]),
+          toElement(spec_element.data[1]),
+          toElement(spec_element.data[2]),
+          toElement(spec_element.data[3]),
+          toElement(spec_element.data[4]),
+          toElement(spec_element.data[5]),
+          toElement(spec_element.data[6]),
+          spec_element.data[7].innerText,
+          parseFloat(spec_element.data[8].innerText, 10)
+        );
+      }
+      case "left": {
+        let brace = spec_element.data[0].innerText;
+        let content = spec_element.data[1];
+        let sub_div = document.createElement("span");
+        sub_div.style.display = "inline-block";
+        sub_div.classList.add("math-brace-content");
+        sub_div.appendChild(content);
+        let out_div = document.createElement("span");
+        out_div.style.display = "inline-flex";
+        out_div.style.alignItems = "center";
+        out_div.style.verticalAlign = "middle";
+        let outer_sub_div = document.createElement("span");
+        outer_sub_div.textContent = brace;
+        outer_sub_div.classList.add("math-brace-symbol");
+        outer_sub_div.style.transformOrigin = "center center";
+        outer_sub_div.style.lineHeight = "1";
+        outer_sub_div.style.display = "inline-block";
+        out_div.appendChild(outer_sub_div);
+        out_div.appendChild(sub_div);
+        return out_div;
+      }
+      case "right": {
+        let brace = spec_element.data[0].innerText;
+        let content = spec_element.data[1];
+        let sub_div = document.createElement("span");
+        sub_div.style.display = "inline-block";
+        sub_div.classList.add("math-brace-content");
+        sub_div.appendChild(content);
+        let out_div = document.createElement("span");
+        out_div.style.display = "inline-flex";
+        out_div.style.alignItems = "center";
+        out_div.style.verticalAlign = "middle";
+        let outer_sub_div = document.createElement("span");
+        outer_sub_div.textContent = brace;
+        outer_sub_div.classList.add("math-brace-symbol");
+        outer_sub_div.style.transformOrigin = "center center";
+        outer_sub_div.style.lineHeight = "1";
+        outer_sub_div.style.display = "inline-block";
+        out_div.appendChild(sub_div);
+        out_div.appendChild(outer_sub_div);
+        return out_div;
+      }
+      case "scale": {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.zoom = amount;
+        return content;
+      }
+      case "scalew": {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `scaleX(${amount})`;
+        content.style.transformOrigin = "left center";
+        return content;
+      }
+      case "scaleh": {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `scaleY(${amount})`;
+        content.style.transformOrigin = "center top";
+        return content;
+      }
+      case "rotate": {
+        let amount = parseFloat(spec_element.data[0].innerText, 10);
+        let content = toElement(spec_element.data[1]);
+        content.style.transform = `rotate(${amount}deg)`;
+        return content;
+      }
+      case "mathbb": {
+        let content = toElement(spec_element.data[0]);
+        for (let node of content.childNodes) {
+          if (node.nodeType == Node.TEXT_NODE) {
+            let text = node.textContent;
+            let new_text = "";
+            for (let char of text) {
+              new_text += mathbb_map[char] || char;
+            }
+            node.textContent = new_text;
+          }
+        }
+        return content;
+      }
+      case "mathcal": {
+        let content = toElement(spec_element.data[0]);
+        for (let node of content.childNodes) {
+          if (node.nodeType == Node.TEXT_NODE) {
+            let text = node.textContent;
+            let new_text = "";
+            for (let char of text) {
+              new_text += mathcal_map[char] || char;
+            }
+            node.textContent = new_text;
+          }
+        }
+        return content;
+      }
+      case "overline": {
+        let content = toElement(spec_element.data[0]);
+        content.classList.add("math-overline-content");
+        let wrapper = document.createElement("span");
+        wrapper.classList.add("math-overline");
+        wrapper.style.display = "inline-block";
+        wrapper.style.position = "relative";
+        wrapper.style.verticalAlign = "baseline";
+        let line = document.createElement("span");
+        line.classList.add("math-overline-line");
+        line.style.position = "absolute";
+        line.style.left = "0";
+        line.style.right = "0";
+        line.style.height = "0.08em";
+        line.style.backgroundColor = "currentColor";
+        line.style.pointerEvents = "none";
+        let baselineAnchor = document.createElement("span");
+        baselineAnchor.classList.add("math-baseline-anchor");
+        baselineAnchor.style.display = "inline-block";
+        baselineAnchor.style.width = "0";
+        baselineAnchor.style.height = "0";
+        baselineAnchor.style.verticalAlign = "baseline";
+        wrapper.appendChild(content);
+        wrapper.appendChild(line);
+        wrapper.appendChild(baselineAnchor);
+        let ascent = getVisualAscent(content, wrapper);
+        if (ascent > 0) {
+          line.style.bottom = `calc(0.22em + ${ascent}px + 2px)`;
+        } else {
+          line.style.bottom = "calc(1ex + 0.22em + 2px)";
+        }
+        return wrapper;
+      }
+      case "underline": {
+        let content = toElement(spec_element.data[0]);
+        content.classList.add("math-underline-content");
+        let wrapper = document.createElement("span");
+        wrapper.classList.add("math-underline");
+        wrapper.style.display = "inline-block";
+        wrapper.style.position = "relative";
+        wrapper.style.verticalAlign = "baseline";
+        let line = document.createElement("span");
+        line.classList.add("math-underline-line");
+        line.style.position = "absolute";
+        line.style.left = "0";
+        line.style.right = "0";
+        line.style.height = "0.08em";
+        line.style.backgroundColor = "currentColor";
+        line.style.pointerEvents = "none";
+        let baselineAnchor = document.createElement("span");
+        baselineAnchor.classList.add("math-baseline-anchor");
+        baselineAnchor.style.display = "inline-block";
+        baselineAnchor.style.width = "0";
+        baselineAnchor.style.height = "0";
+        baselineAnchor.style.verticalAlign = "baseline";
+        wrapper.appendChild(content);
+        wrapper.appendChild(line);
+        wrapper.appendChild(baselineAnchor);
+        let descent = getVisualDescent(content, wrapper);
+        if (descent > 0) {
+          line.style.bottom = `calc(0.22em - ${descent}px - 2px)`;
+        } else {
+          line.style.bottom = "calc(0.22em - 2px)";
+        }
+        return wrapper;
+      }
+      default:
+        throw Error(`Unimplemented special expression ${spec_element.name}`);
     }
   }
 
@@ -787,7 +1161,7 @@
                   let intSpan = document.createElement("span");
                   intSpan.textContent = out_str;
                   intSpan.style.display = "inline-block";
-                  intSpan.style.transform = "translateY(0.2em)";
+                  intSpan.style.transform = "translateY(0.0em)";
                   final_expression_array.push(intSpan);
                 } else {
                   let symbol_div = toElement(out_str);
@@ -821,6 +1195,28 @@
   }
 
   // src/index.js
+  function injectDefaultStyles() {
+    if (typeof document === "undefined") return;
+    if (document.getElementById("math-eq-default-styles")) return;
+    const style = document.createElement("style");
+    style.id = "math-eq-default-styles";
+    style.textContent = `
+@import url('https://cdn.jsdelivr.net/npm/katex@0.18.5/dist/katex.min.css');
+
+:where(m-eq, m-eqi) {
+	font-family: 'KaTeX_Main', serif;
+}
+`;
+    const target = document.head || document.documentElement;
+    target.appendChild(style);
+    if (document.fonts) {
+      document.fonts.ready.then(() => {
+        document.querySelectorAll(".math-overline").forEach(updateOverline);
+        document.querySelectorAll(".math-underline").forEach(updateUnderline);
+      });
+    }
+  }
+  injectDefaultStyles();
   function setupAttachObserver(root) {
     const attachObserver = new ResizeObserver((entries) => {
       for (let entry of entries) {
@@ -913,6 +1309,7 @@
         observer2.observe(cont);
       }
       setupAttachObserver(this);
+      setupLineObserver(this);
     }
   };
   var MEqIElement = class extends HTMLElement {
@@ -969,6 +1366,7 @@
         observer2.observe(cont);
       }
       setupAttachObserver(this);
+      setupLineObserver(this);
     }
   };
   customElements.define("m-eq", MEqElement);

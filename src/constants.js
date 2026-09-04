@@ -127,6 +127,7 @@ export const escape_word_map = {
 	"nsim": "≁",
 	"nsimeq": "≄",
 	"napprox": "≉",
+	"cross": "×", // Same as times, added it for myself
 
 	"prop": "∝",
 	"propto": "∝",
@@ -169,7 +170,9 @@ export const escape_word_map = {
 	"LongEquiv": "⟺",
 	"^": "^", // Like printing the characters, not actually using them
 	"_": "_",
-	"\\": "\\"
+	"\\": "\\",
+	"forall": "∀",
+	"exists": "∃"
 };
 
 export let escape_word_list = Object.keys(escape_word_map).sort((a, b) => b.length - a.length);
@@ -198,14 +201,142 @@ escape_word_list.push(...[
     "scalew",
     "scaleh",
     "rotate", // works in degrees
+
+	"mathbb", // {R a b} -> ℝ 𝕒 𝕓
+	"mathcal", // {R a b} -> ℛ 𝒶 b
+
+	"underline",
+	"overline"
 ])
 // The idea will be to keep scanning forward, till only one of them satisfies
 // If none match, then just print the \ as normal
 // If multiple match at one point and then none match, then i want the longest ones, sorted it
 
 // Refers to functions, which pop the next argument behind them.
-export let single_pop_list = ["sqrt", "cancel"]; 
+export let single_pop_list = ["sqrt", "cancel", "mathbb", "mathcal", "underline", "overline"]; 
 export let double_pop_list = ["over","under","frac","root","left","right","scale","scalew","scaleh","rotate","cancelangle", "canceldir"];
 export let custom_handling_list = ["attach", "attacho", "attachos"]; // For sqrt, i want it to be usable as a character and a function. SO if sqrt is followed by a string, tis character, if followed by a div, its function
 
 export let updown_modifier = ["Σ", "∏", "∪", "∩", "∫", "∬", "∭", "∮"]
+
+/** @type {Object.<string, string>} */
+export let mathbb_map = {
+	"a": "𝕒",
+	"b": "𝕓",
+	"c": "𝕔",
+	"d": "𝕕",
+	"e": "𝕖",
+	"f": "𝕗",
+	"g": "𝕘",
+	"h": "𝕙",
+	"i": "𝕚",
+	"j": "𝕛",
+	"k": "𝕜",
+	"l": "𝕝",
+	"m": "𝕞",
+	"n": "𝕟",
+	"o": "𝕠",
+	"p": "𝕡",
+	"q": "𝕢",
+	"r": "𝕣",
+	"s": "𝕤",
+	"t": "𝕥",
+	"u": "𝕦",
+	"v": "𝕧",
+	"w": "𝕨",
+	"x": "𝕩",
+	"y": "𝕪",
+	"z": "𝕫",
+	"A": "𝔸",
+	"B": "𝔹",
+	"C": "ℂ",
+	"D": "𝔻",
+	"E": "𝔼",
+	"F": "𝔽",
+	"G": "𝔾",
+	"H": "ℍ",
+	"I": "𝕀",
+	"J": "𝕁",
+	"K": "𝕂",
+	"L": "𝕃",
+	"M": "𝕄",
+	"N": "ℕ",
+	"O": "𝕆",
+	"P": "ℙ",
+	"Q": "ℚ",
+	"R": "ℝ",
+	"S": "𝕊",
+	"T": "𝕋",
+	"U": "𝕌",
+	"V": "𝕍",
+	"W": "𝕎",
+	"X": "𝕏",
+	"Y": "𝕐",
+	"Z": "ℤ",
+	"0": "𝟘",
+	"1": "𝟙",
+	"2": "𝟚",
+	"3": "𝟛",
+	"4": "𝟜",
+	"5": "𝟝",
+	"6": "𝟞",
+	"7": "𝟟",
+	"8": "𝟠",
+	"9": "𝟡",
+}
+
+/** @type {Object.<string, string>} */
+export let mathcal_map = {
+	"a": "𝒶",
+	"b": "𝒷",
+	"c": "𝒸",
+	"d": "𝒹",
+	"e": "ℯ",
+	"f": "𝒻",
+	"g": "ℊ",
+	"h": "𝒽",
+	"i": "𝒾",
+	"j": "𝒿",
+	"k": "𝓀",
+	"l": "𝓁",
+	"m": "𝓂",
+	"n": "𝓃",
+	"o": "ℴ",
+	"p": "𝓅",
+	"q": "𝓆",
+	"r": "𝓇",
+	"s": "𝓈",
+	"t": "𝓉",
+	"u": "𝓊",
+	"v": "𝓋",
+	"w": "𝓌",
+	"x": "𝓍",
+	"y": "𝓎",
+	"z": "𝓏",
+	"A": "𝒜",
+	"B": "ℬ",
+	"C": "𝒞",
+	"D": "𝒟",
+	"E": "ℰ",
+	"F": "ℱ",
+	"G": "𝒢",
+	"H": "ℋ",
+	"I": "ℐ",
+	"J": "𝒥",
+	"K": "𝒦",
+	"L": "ℒ",
+	"M": "ℳ",
+	"N": "𝒩",
+	"O": "𝒪",
+	"P": "𝒫",
+	"Q": "𝒬",
+	"R": "ℛ",
+	"S": "𝒮",
+	"T": "𝒯",
+	"U": "𝒰",
+	"V": "𝒱",
+	"W": "𝒲",
+	"X": "𝒳",
+	"Y": "𝒴",
+	"Z": "𝒵"
+}

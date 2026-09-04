@@ -274,7 +274,7 @@ export function tex_to_div(tokens) {
 								intSpan.textContent = out_str;
 								intSpan.style.display = "inline-block";
 								// Push it downwards so it perfectly aligns with standard superscripts
-								intSpan.style.transform = "translateY(0.2em)"; 
+								intSpan.style.transform = "translateY(0.0em)"; // Changed to 0.0, as the katex font lines up well
 								final_expression_array.push(intSpan);
 							} else {
 								// Should convert to div, so I can use custom fonts
@@ -288,7 +288,6 @@ export function tex_to_div(tokens) {
 						}
 						break;
 					}
-
 					throw Error("Invalid Backslash Usage");
 				}
 
