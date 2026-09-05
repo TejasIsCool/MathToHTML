@@ -2,3 +2,7 @@
 npx esbuild src/index.js --bundle --outfile=dist/math-eq.js --format=iife --sourcemap
 
 npx esbuild src/index.js --bundle --outfile=dist/math-eq.min.js --format=iife --minify
+
+# Tags
+git tag -a v1.0.0 -m "Release version 1.0.0"
+git push origin v1.0.0

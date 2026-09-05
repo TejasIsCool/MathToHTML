@@ -175,7 +175,10 @@
     "_": "_",
     "\\": "\\",
     "forall": "\u2200",
-    "exists": "\u2203"
+    "exists": "\u2203",
+    "therefore": "\u2234",
+    "because": "\u2235",
+    "since": "\u2235"
   };
   var escape_word_list = Object.keys(escape_word_map).sort((a, b) => b.length - a.length);
   escape_word_list.push(...[

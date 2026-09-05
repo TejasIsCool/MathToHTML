@@ -172,7 +172,10 @@ export const escape_word_map = {
 	"_": "_",
 	"\\": "\\",
 	"forall": "∀",
-	"exists": "∃"
+	"exists": "∃",
+	"therefore": "∴",
+	"because": "∵",
+	"since" : "∵"
 };
 
 export let escape_word_list = Object.keys(escape_word_map).sort((a, b) => b.length - a.length);

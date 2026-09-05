@@ -3,7 +3,7 @@
 To use the script, put this in the head of the script
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/TejasIsCool/MathToHTML@v0.1.3/dist/math-eq.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/gh/TejasIsCool/MathToHTML@v0.1.4/dist/math-eq.min.js" defer></script>
 ```
 
 You can then enter your math equations in the body of the page like this
@@ -213,6 +213,8 @@ To use these symbols, just write `\command`, where the command is the command of
     |:---:|---|---|
     | ∀ | `forall` | - |
     | ∃ | `exists` | - |
+    | ∴ | `therefore` | - |
+    | ∵ | `because` | `since` |
 
     ---
 
