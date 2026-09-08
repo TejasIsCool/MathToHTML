@@ -1,4 +1,4 @@
-# MathToHTML
+# HTMLMathRenderer
 
 This is a pure js, client side library, designed to allow writing latex-like equations, and have them being rendered nicely (in the form of div and span elements).
 
